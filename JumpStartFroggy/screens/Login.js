@@ -17,7 +17,6 @@ export default function LoginScreen({ navigation }) {
   const [password, setPassword] = useState("");
 
   const handleLogin = () => {
-    // Add your login logic here
     navigation.navigate("Home");
   };
 
