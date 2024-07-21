@@ -8,7 +8,11 @@ import {
   Dimensions,
   TextInput,
   TouchableOpacity,
+  Alert,
 } from "react-native";
+import axios from "axios";
+import { auth } from "../src/firebase-config.js";
+import { signInWithCustomToken } from "firebase/auth";
 
 import lilypadlogin from "../assets/lilypadlogin.jpg";
 
@@ -16,8 +20,22 @@ export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
-    navigation.navigate("Home");
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post("http://localhost:3000/login", {
+        email,
+        password,
+      });
+      const { token } = response.data;
+
+      await signInWithCustomToken(auth, token);
+
+      alert("User created successfully!");
+      navigation.navigate("Home");
+    } catch (error) {
+      console.log(error);
+      alert("Invalid Credentials");
+    }
   };
 
   return (

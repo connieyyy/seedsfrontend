@@ -9,7 +9,6 @@ import {
   TouchableOpacity,
   Button,
 } from "react-native";
-
 import lilypadlogin from "../assets/lilypadlogin.jpg";
 
 export default function App({ navigation }) {
@@ -20,10 +19,8 @@ export default function App({ navigation }) {
         style={styles.backgroundImage}
         resizeMode="cover"
       >
-        <Text style={styles.title}>Welcome Back!</Text>
-        <Text style={styles.subtitle}>
-          Jump start into a healthy college life!
-        </Text>
+        <Text style={styles.title}>Welcome!</Text>
+        <Text style={styles.subtitle}>Leap into a healthy college life!</Text>
 
         <View style={styles.buttoncontainer}>
           <TouchableOpacity

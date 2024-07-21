@@ -9,6 +9,7 @@ import {
   TextInput,
   TouchableOpacity,
 } from "react-native";
+import axios from "axios";
 
 import lilypadlogin from "../assets/lilypadlogin.jpg";
 
@@ -17,9 +18,19 @@ export default function Register({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
-    // Add your login logic here
-    navigation.navigate("Home");
+  const handleLogin = async () => {
+    try {
+      await axios.post("http://localhost:3000/signup", {
+        username,
+        email,
+        password,
+      });
+      alert("User created successfully!");
+      navigation.navigate("Login");
+    } catch (error) {
+      console.log(error);
+      alert("Error creating user");
+    }
   };
 
   return (
@@ -34,7 +45,7 @@ export default function Register({ navigation }) {
 
           <TextInput
             style={styles.input}
-            placeholder="Username"
+            placeholder="Name"
             value={username}
             onChangeText={setUsername}
             autoCapitalize="none"
