@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
   },
   imageBackground: {
     width: "100%",
-    height: height * 0.3,
+    height: height * 0.32,
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
