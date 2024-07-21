@@ -30,8 +30,7 @@ export default function LoginScreen({ navigation }) {
 
       await signInWithCustomToken(auth, token);
 
-      alert("User created successfully!");
-      navigation.navigate("Home");
+      navigation.navigate("Dashboard");
     } catch (error) {
       console.log(error);
       alert("Invalid Credentials");
