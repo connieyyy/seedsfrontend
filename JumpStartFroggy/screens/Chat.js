@@ -9,7 +9,7 @@ import {
   Image,
 } from "react-native";
 import chatfroggy from "../assets/chatfroggy.png";
-import chat from "../assets/chat.png";
+import frogbutton from "../assets/frogbutton.png";
 import decorate from "../assets/decorate.png";
 import food from "../assets/food.png";
 import log from "../assets/log.png";
@@ -32,9 +32,9 @@ export default function App({ navigation }) {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.bottombutton}
-            onPress={() => navigation.navigate("Chat")}
+            onPress={() => navigation.navigate("Dashboard")}
           >
-            <Image source={chat} style={styles.buttonImage} />
+            <Image source={frogbutton} style={styles.buttonImage} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.bottombutton}

@@ -9,11 +9,11 @@ import {
   TouchableOpacity,
 } from "react-native";
 import axios from "axios";
-import Icon from "react-native-vector-icons/MaterialIcons"; // Importing MaterialIcons for check mark
+import Icon from "react-native-vector-icons/MaterialIcons";
 import dayswamp from "../assets/dayswamp.jpg";
 
 const { height } = Dimensions.get("window");
-const API_URL = "http://localhost:3000/missions"; // Update as needed for your environment
+const API_URL = "http://localhost:3000/missions";
 
 export default function Mission() {
   const [missions, setMissions] = useState([]);
