@@ -18,9 +18,9 @@ export default function Register({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = async () => {
+  const handleRegister = async () => {
     try {
-      await axios.post("http://localhost:3000/signup", {
+      await axios.post("http://localhost:3000/auth/signup", {
         username,
         email,
         password,
@@ -69,7 +69,7 @@ export default function Register({ navigation }) {
             autoCapitalize="none"
           />
 
-          <TouchableOpacity style={styles.button} onPress={handleLogin}>
+          <TouchableOpacity style={styles.button} onPress={handleRegister}>
             <Text style={styles.buttonText}>Sign Up</Text>
           </TouchableOpacity>
         </View>
