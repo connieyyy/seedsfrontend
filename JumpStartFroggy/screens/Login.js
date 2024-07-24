@@ -11,12 +11,14 @@ import {
 import axios from "axios";
 import { auth } from "../src/firebase-config.js";
 import { signInWithCustomToken } from "firebase/auth";
+import { useUser } from "../UserContext.js";
 
 import lilypadlogin from "../assets/lilypadlogin.jpg";
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { setUser } = useUser();
 
   const handleLogin = async () => {
     try {
@@ -27,7 +29,7 @@ export default function LoginScreen({ navigation }) {
       const { token } = response.data;
 
       await signInWithCustomToken(auth, token);
-
+      setUser({ email });
       navigation.navigate("Dashboard");
     } catch (error) {
       console.log(error);

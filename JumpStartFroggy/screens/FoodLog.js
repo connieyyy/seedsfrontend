@@ -10,50 +10,58 @@ import {
   FlatList,
   Modal,
   TouchableOpacity,
-  ActivityIndicator,
 } from "react-native";
 import axios from "axios";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import swamp from "../assets/swamp.jpg";
+import { useUser } from "../UserContext.js";
 
 const { height } = Dimensions.get("window");
 const API_URL = "http://localhost:3000/foodlogs";
 
 export default function FoodLog() {
   const [foodLogs, setFoodLogs] = useState([]);
-  const [foodItem, setFoodItem] = useState({ name: "", description: "" });
   const [modalVisible, setModalVisible] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [foodItem, setFoodItem] = useState({ name: "" });
+  const { user } = useUser();
 
   useEffect(() => {
     const fetchFoodLogs = async () => {
-      try {
-        const response = await axios.get(API_URL);
-        setFoodLogs(response.data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+      if (user && user.email) {
+        const today = new Date().toISOString().split("T")[0];
+        try {
+          const response = await axios.get(`${API_URL}/${user.email}/${today}`);
+          // Ensure response.data is a flat array
+          const flattenedData = Array.isArray(response.data)
+            ? response.data.flat()
+            : [];
+          setFoodLogs(flattenedData);
+        } catch (err) {
+          console.error("Error fetching food logs:", err.message);
+        }
       }
     };
-
     fetchFoodLogs();
-  }, []);
+  }, [user]);
 
   const handleAddFoodItem = async () => {
-    try {
-      const response = await axios.post(API_URL, foodItem);
-      setFoodLogs((prevLogs) => [...prevLogs, response.data]);
-      setFoodItem({ name: "", description: "" });
-      setModalVisible(false);
-    } catch (error) {
-      console.error("Error adding food item:", error);
+    if (user && user.email) {
+      const today = new Date().toISOString().split("T")[0];
+      try {
+        await axios.post(API_URL, {
+          email: user.email,
+          foodName: foodItem.name,
+          date: today,
+        });
+        const response = await axios.get(`${API_URL}/${user.email}/${today}`);
+        setFoodLogs(response.data ? [response.data] : []);
+        setFoodItem({ name: "" });
+        setModalVisible(false);
+      } catch (err) {
+        console.error("Error adding food item:", err.message);
+      }
     }
   };
-
-  if (loading) return <ActivityIndicator size="large" color="#0000ff" />;
-  if (error) return <Text>Error: {error}</Text>;
 
   return (
     <View style={styles.container}>
@@ -63,7 +71,7 @@ export default function FoodLog() {
         resizeMode="cover"
       >
         <View style={styles.overlay}>
-          <Text style={styles.overlaytitle}>Today's Food Log</Text>
+          <Text style={styles.overlaytitle}>Food Log</Text>
           <Text style={styles.overlayText}>
             Log your meals for today. It counts toward your missions and resets
             at midnight.
@@ -76,15 +84,11 @@ export default function FoodLog() {
           keyExtractor={(item) => item._id.toString()}
           renderItem={({ item }) => (
             <View style={styles.missionBlock}>
-              <View style={styles.missionDetails}>
-                <Text style={styles.missionTitle}>{item.name}</Text>
-                <Text style={styles.missionDescription}>
-                  Description: {item.description}
-                </Text>
-              </View>
+              <Text style={styles.missionTitle}>{item.foodName}</Text>
             </View>
           )}
         />
+
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => setModalVisible(true)}
@@ -101,24 +105,18 @@ export default function FoodLog() {
           setModalVisible(!modalVisible);
         }}
       >
-        <View style={styles.modalView}>
-          <Text style={styles.modalTitle}>Add Food Item</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Food Name"
-            value={foodItem.name}
-            onChangeText={(text) => setFoodItem({ ...foodItem, name: text })}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Description"
-            value={foodItem.description}
-            onChangeText={(text) =>
-              setFoodItem({ ...foodItem, description: text })
-            }
-          />
-          <Button title="Add Food" onPress={handleAddFoodItem} />
-          <Button title="Cancel" onPress={() => setModalVisible(false)} />
+        <View style={styles.modalContainer}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalTitle}>Add Food Item</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Food Name"
+              value={foodItem.name}
+              onChangeText={(text) => setFoodItem({ ...foodItem, name: text })}
+            />
+            <Button title="Add Food" onPress={handleAddFoodItem} />
+            <Button title="Cancel" onPress={() => setModalVisible(false)} />
+          </View>
         </View>
       </Modal>
     </View>
@@ -157,14 +155,14 @@ const styles = StyleSheet.create({
   },
   instructionsContainer: {
     flex: 1,
-    backgroundColor: "#c2cc80",
+    backgroundColor: "#5B7CBF",
     padding: 20,
     paddingTop: 30,
   },
   missionBlock: {
     flexDirection: "row",
     alignItems: "flex-start",
-    backgroundColor: "#737D06",
+    backgroundColor: "#2A4D83",
     borderRadius: 10,
     padding: 15,
     marginBottom: 10,
@@ -174,21 +172,14 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-  missionDetails: {
-    flex: 1,
-  },
   missionTitle: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: "normal",
     marginBottom: 5,
     color: "white",
   },
-  missionDescription: {
-    fontSize: 16,
-    color: "white",
-  },
   addButton: {
-    backgroundColor: "#5b7cbf",
+    backgroundColor: "#2A4D83",
     borderRadius: 50,
     width: 60,
     height: 60,
@@ -198,8 +189,12 @@ const styles = StyleSheet.create({
     bottom: 30,
     right: 30,
   },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+  },
   modalView: {
-    margin: 20,
+    margin: 40,
     backgroundColor: "white",
     borderRadius: 20,
     padding: 35,
@@ -223,5 +218,9 @@ const styles = StyleSheet.create({
     borderBottomColor: "#ccc",
     paddingVertical: 10,
     marginBottom: 15,
+  },
+  foodLogTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
   },
 });
