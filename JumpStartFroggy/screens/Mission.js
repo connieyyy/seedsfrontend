@@ -51,7 +51,6 @@ export default function Mission() {
   if (loading) return <ActivityIndicator size="large" color="#0000ff" />;
   if (error) return <Text>Error: {error}</Text>;
 
-  // Separate the first mission as the daily mission
   const [dailyMission, ...yourMissions] = missions;
 
   return (

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import {
-  Button,
   StyleSheet,
   View,
   Text,
@@ -8,7 +7,6 @@ import {
   Dimensions,
   TextInput,
   TouchableOpacity,
-  Alert,
 } from "react-native";
 import axios from "axios";
 import { auth } from "../src/firebase-config.js";
@@ -22,7 +20,7 @@ export default function LoginScreen({ navigation }) {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post("http://localhost:3000/login", {
+      const response = await axios.post("http://localhost:3000/auth/login", {
         email,
         password,
       });
