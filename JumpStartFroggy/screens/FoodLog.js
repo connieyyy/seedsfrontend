@@ -54,7 +54,7 @@ export default function FoodLog() {
           date: today,
         });
         const response = await axios.get(`${API_URL}/${user.email}/${today}`);
-        setFoodLogs(response.data ? [response.data] : []);
+        setFoodLogs(response.data ? response.data : []);
         setFoodItem({ name: "" });
         setModalVisible(false);
       } catch (err) {
