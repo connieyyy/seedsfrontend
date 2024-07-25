@@ -29,6 +29,7 @@ export default function App({ navigation }) {
   const [petInfo, setPetInfo] = useState({
     pet: [{ petName: "Froggy", petHealthLevel: 70 }],
   });
+  const [intervalId, setIntervalId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [newPetName, setNewPetName] = useState("");
   const { user } = useUser();
@@ -49,6 +50,23 @@ export default function App({ navigation }) {
       }
     };
     fetchPetInfo();
+
+    const id = setInterval(async () => {
+      if (user && user.email) {
+        try {
+          await axios.put(`${API_URL}/${user.email}/updateHealth`);
+          const updatedResponse = await axios.get(
+            `${API_URL}/${user.email}/getHealth`
+          );
+          setPetInfo(updatedResponse.data);
+        } catch (err) {
+          console.error("Error updating pet health:", err.message);
+        }
+      }
+    }, 25 * 60 * 1000);
+
+    setIntervalId(id);
+    return () => clearInterval(id);
   }, [user]);
 
   const handleFrogPress = () => {
@@ -89,6 +107,7 @@ export default function App({ navigation }) {
       );
     }
   };
+
   return (
     <View style={styles.container}>
       <ImageBackground
