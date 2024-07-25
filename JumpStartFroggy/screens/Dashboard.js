@@ -26,9 +26,11 @@ const frogJumpGif = require("../assets/froggy_sprites_anims/froggy_jump_once.gif
 
 export default function App({ navigation }) {
   const [isJumping, setIsJumping] = useState(false);
-  const [petInfo, setPetInfo] = useState(null);
+  const [petInfo, setPetInfo] = useState({
+    pet: [{ petName: "Froggy", petHealthLevel: 70 }],
+  });
   const [isEditing, setIsEditing] = useState(false);
-  const [newPetName, setNewPetName] = useState(false);
+  const [newPetName, setNewPetName] = useState("");
   const { user } = useUser();
   const API_URL = "http://localhost:3000/pets";
 
@@ -38,6 +40,9 @@ export default function App({ navigation }) {
         try {
           const response = await axios.get(`${API_URL}/${user.email}`);
           setPetInfo(response.data);
+          setNewPetName(
+            response.data.pet && response.data.pet ? response.data.petName : ""
+          );
         } catch (err) {
           console.error("Error fetching pet information:", err.message);
         }
@@ -50,19 +55,30 @@ export default function App({ navigation }) {
     setIsJumping(true);
     setTimeout(() => {
       setIsJumping(false);
-    }, 1000); // Adjust timeout based on the GIF duration
+    }, 1000);
+  };
+
+  const handleEditPress = () => {
+    if (isEditing) {
+      handleSavePress();
+    } else {
+      setIsEditing(true);
+    }
   };
 
   const handleSavePress = async () => {
+    if (newPetName.trim() === "") {
+      alert("Pet name cannot be empty.");
+      return;
+    }
     try {
-      await axios.put(`${API_URL}/${email}`, {
-        petName: newPetName,
+      await axios.put(`${API_URL}/${user.email}/updatePetName`, {
+        newPetName: newPetName,
       });
       setPetInfo((prevInfo) => ({
         ...prevInfo,
         pet: [
           {
-            ...prevInfo.pet[0],
             petName: newPetName,
           },
         ],
@@ -80,49 +96,37 @@ export default function App({ navigation }) {
         style={styles.backgroundImage}
         resizeMode="cover"
       >
-        {petInfo && (
-          <View style={styles.petInfoContainer}>
-            <View style={styles.petInfoRow}>
-              {isEditing ? (
-                <>
-                  <TextInput
-                    style={styles.petInfoTextInput}
-                    value={newPetName}
-                    onChangeText={setNewPetName}
-                  />
-                  <TouchableOpacity onPress={handleSavePress}>
-                    <Text style={styles.saveText}>Save</Text>
-                  </TouchableOpacity>
-                </>
-              ) : (
-                <>
-                  <Text style={styles.petInfoText}>
-                    {/* Pet Name: {petInfo.pet[0].petName} */ { petInfo }}
-                  </Text>
-                  <TouchableOpacity onPress={handleEditPress}>
-                    <Image source={pencilIcon} style={styles.pencilIcon} />
-                  </TouchableOpacity>
-                </>
-              )}
-            </View>
-            <Text style={styles.petInfoText}>
-              Pet Health Level: {petInfo.pet[0].petHealthLevel}
-            </Text>
-            <Text style={styles.petInfoText}>
-              Pet Age: {petInfo.pet[0].petAge}
-            </Text>
+        <View style={styles.petInfoContainer}>
+          <View style={styles.petInfoRow}>
+            {isEditing ? (
+              <>
+                <TextInput
+                  style={styles.petInfoTextInput}
+                  value={newPetName}
+                  onChangeText={setNewPetName}
+                />
+                <TouchableOpacity onPress={handleSavePress}>
+                  <Text style={styles.saveText}>Save</Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <>
+                <Text style={styles.petInfoText}>{petInfo.petName}</Text>
+                <TouchableOpacity onPress={handleEditPress}>
+                  <Image source={pencilIcon} style={styles.pencilIcon} />
+                </TouchableOpacity>
+              </>
+            )}
           </View>
-        )}
+          <Text style={styles.petInfoText}>
+            Health: {petInfo.petHealthLevel}
+          </Text>
+        </View>
 
-        <TouchableWithoutFeedback
-          onPress={handleFrogPress}
-          style={styles.frogButton}
-        >
+        <TouchableWithoutFeedback onPress={handleFrogPress}>
           <Image
-            key={isJumping ? "jumping" : "static"}
             source={isJumping ? frogJumpGif : frogStaticImage}
             style={isJumping ? styles.frogJumpImage : styles.frogStaticImage}
-            fadeDuration={0}
           />
         </TouchableWithoutFeedback>
 
@@ -181,19 +185,39 @@ const styles = StyleSheet.create({
     top: 70,
     left: 30,
   },
+  petInfoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   petInfoText: {
     fontSize: 24,
     color: "#fff",
     padding: 5,
     marginBottom: 5,
   },
-
+  petInfoTextInput: {
+    fontSize: 24,
+    color: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#fff",
+    marginRight: 10,
+    width: 200,
+  },
+  pencilIcon: {
+    width: 24,
+    height: 24,
+    tintColor: "#fff",
+  },
+  saveText: {
+    fontSize: 24,
+    color: "#fff",
+    marginLeft: 10,
+  },
   topbuttonContainer: {
     position: "absolute",
     top: 130,
     right: 20,
   },
-
   bottomButtonContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -203,7 +227,6 @@ const styles = StyleSheet.create({
     bottom: 20,
     marginBottom: 10,
   },
-
   topbutton: {
     marginHorizontal: 10,
     marginTop: 25,
@@ -212,7 +235,6 @@ const styles = StyleSheet.create({
     height: 70,
     overflow: "hidden",
   },
-
   bottombutton: {
     marginTop: 20,
     marginBottom: 20,
@@ -221,25 +243,21 @@ const styles = StyleSheet.create({
     height: 70,
     overflow: "hidden",
   },
-
   buttonImage: {
     width: "100%",
     height: "100%",
     resizeMode: "cover",
   },
-
   frogStaticImage: {
     width: 350,
     height: 380,
     resizeMode: "contain",
   },
-
   frogJumpImage: {
     width: 360,
     height: 400,
     resizeMode: "contain",
   },
-
   container: {
     flex: 1,
   },
