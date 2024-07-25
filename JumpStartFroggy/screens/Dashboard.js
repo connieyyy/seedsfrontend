@@ -1,12 +1,15 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dimensions,
   ImageBackground,
   StyleSheet,
   View,
+  TouchableWithoutFeedback,
   TouchableOpacity,
   Image,
+  Text,
+  TextInput,
 } from "react-native";
 import froggy from "../assets/main.png";
 import chat from "../assets/chat.png";
@@ -14,18 +17,60 @@ import decorate from "../assets/decorate.png";
 import food from "../assets/food.png";
 import log from "../assets/log.png";
 import missions from "../assets/missions.png";
+import axios from "axios";
+import { useUser } from "../UserContext.js";
+import pencilIcon from "../assets/pencil.png";
 
 const frogStaticImage = require("../assets/froggy_sprites_anims/froggy_base.png");
 const frogJumpGif = require("../assets/froggy_sprites_anims/froggy_jump_once.gif");
 
 export default function App({ navigation }) {
   const [isJumping, setIsJumping] = useState(false);
+  const [petInfo, setPetInfo] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [newPetName, setNewPetName] = useState(false);
+  const { user } = useUser();
+  const API_URL = "http://localhost:3000/pets";
+
+  useEffect(() => {
+    const fetchPetInfo = async () => {
+      if (user && user.email) {
+        try {
+          const response = await axios.get(`${API_URL}/${user.email}`);
+          setPetInfo(response.data);
+        } catch (err) {
+          console.error("Error fetching pet information:", err.message);
+        }
+      }
+    };
+    fetchPetInfo();
+  }, [user]);
 
   const handleFrogPress = () => {
     setIsJumping(true);
     setTimeout(() => {
       setIsJumping(false);
     }, 1000); // Adjust timeout based on the GIF duration
+  };
+
+  const handleSavePress = async () => {
+    try {
+      await axios.put(`${API_URL}/${email}`, {
+        petName: newPetName,
+      });
+      setPetInfo((prevInfo) => ({
+        ...prevInfo,
+        pet: [
+          {
+            ...prevInfo.pet[0],
+            petName: newPetName,
+          },
+        ],
+      }));
+      setIsEditing(false);
+    } catch (err) {
+      console.error("Error updating pet name", err);
+    }
   };
 
   return (
@@ -35,13 +80,51 @@ export default function App({ navigation }) {
         style={styles.backgroundImage}
         resizeMode="cover"
       >
-        <TouchableOpacity onPress={handleFrogPress} style={styles.frogButton}>
+        {petInfo && (
+          <View style={styles.petInfoContainer}>
+            <View style={styles.petInfoRow}>
+              {isEditing ? (
+                <>
+                  <TextInput
+                    style={styles.petInfoTextInput}
+                    value={newPetName}
+                    onChangeText={setNewPetName}
+                  />
+                  <TouchableOpacity onPress={handleSavePress}>
+                    <Text style={styles.saveText}>Save</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <>
+                  <Text style={styles.petInfoText}>
+                    {/* Pet Name: {petInfo.pet[0].petName} */ { petInfo }}
+                  </Text>
+                  <TouchableOpacity onPress={handleEditPress}>
+                    <Image source={pencilIcon} style={styles.pencilIcon} />
+                  </TouchableOpacity>
+                </>
+              )}
+            </View>
+            <Text style={styles.petInfoText}>
+              Pet Health Level: {petInfo.pet[0].petHealthLevel}
+            </Text>
+            <Text style={styles.petInfoText}>
+              Pet Age: {petInfo.pet[0].petAge}
+            </Text>
+          </View>
+        )}
+
+        <TouchableWithoutFeedback
+          onPress={handleFrogPress}
+          style={styles.frogButton}
+        >
           <Image
             key={isJumping ? "jumping" : "static"}
             source={isJumping ? frogJumpGif : frogStaticImage}
             style={isJumping ? styles.frogJumpImage : styles.frogStaticImage}
+            fadeDuration={0}
           />
-        </TouchableOpacity>
+        </TouchableWithoutFeedback>
 
         <View style={styles.topbuttonContainer}>
           <TouchableOpacity
@@ -93,6 +176,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
+  petInfoContainer: {
+    position: "absolute",
+    top: 70,
+    left: 30,
+  },
+  petInfoText: {
+    fontSize: 24,
+    color: "#fff",
+    padding: 5,
+    marginBottom: 5,
+  },
+
   topbuttonContainer: {
     position: "absolute",
     top: 130,
@@ -133,16 +228,9 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
   },
 
-  frogButton: {
-    position: "absolute",
-    bottom: 200,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
   frogStaticImage: {
-    width: 320,
-    height: 280,
+    width: 350,
+    height: 380,
     resizeMode: "contain",
   },
 
