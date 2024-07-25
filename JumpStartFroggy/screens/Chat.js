@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-import chatfroggy from "../assets/chatfroggy.png";
+import chatfroggy from "../assets/main.png";
 import frogbutton from "../assets/frogbutton.png";
 import decorate from "../assets/decorate.png";
 import food from "../assets/food.png";
