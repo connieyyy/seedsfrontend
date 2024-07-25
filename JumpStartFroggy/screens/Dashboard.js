@@ -20,6 +20,7 @@ import missions from "../assets/missions.png";
 import axios from "axios";
 import { useUser } from "../UserContext.js";
 import pencilIcon from "../assets/pencil.png";
+import HealthBar from "./HealthBar";
 
 const frogStaticImage = require("../assets/froggy_sprites_anims/froggy_base.png");
 const frogJumpGif = require("../assets/froggy_sprites_anims/froggy_jump_once.gif");
@@ -137,9 +138,8 @@ export default function App({ navigation }) {
               </>
             )}
           </View>
-          <Text style={styles.petInfoText}>
-            Health: {petInfo.petHealthLevel}
-          </Text>
+          <Text style={styles.petInfoText}>Hunger:</Text>
+          <HealthBar health={petInfo.petHealthLevel} />
         </View>
 
         <TouchableWithoutFeedback onPress={handleFrogPress}>
