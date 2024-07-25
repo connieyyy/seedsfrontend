@@ -52,7 +52,10 @@ export default function FoodLog() {
           email: user.email,
           foodName: foodItem.name,
           date: today,
+          foodDescription: foodItem.description,
+          foodPhotoLink: foodItem.photolink,
         });
+        console.log(foodItem);
         const response = await axios.get(`${API_URL}/${user.email}/${today}`);
         setFoodLogs(response.data ? response.data : []);
         setFoodItem({ name: "" });
@@ -85,6 +88,7 @@ export default function FoodLog() {
           renderItem={({ item }) => (
             <View style={styles.missionBlock}>
               <Text style={styles.missionTitle}>{item.foodName}</Text>
+              <Text style={styles.missionsubtitle}>{item.foodDescription}</Text>
             </View>
           )}
         />
@@ -113,6 +117,14 @@ export default function FoodLog() {
               placeholder="Food Name"
               value={foodItem.name}
               onChangeText={(text) => setFoodItem({ ...foodItem, name: text })}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Description"
+              value={foodItem.description}
+              onChangeText={(text) =>
+                setFoodItem({ ...foodItem, description: text })
+              }
             />
             <Button title="Add Food" onPress={handleAddFoodItem} />
             <Button title="Cancel" onPress={() => setModalVisible(false)} />
@@ -160,7 +172,6 @@ const styles = StyleSheet.create({
     paddingTop: 30,
   },
   missionBlock: {
-    flexDirection: "row",
     alignItems: "flex-start",
     backgroundColor: "#2A4D83",
     borderRadius: 10,
@@ -173,7 +184,13 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   missionTitle: {
-    fontSize: 18,
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "white",
+  },
+  missionsubtitle: {
+    fontSize: 16,
     fontWeight: "normal",
     marginBottom: 5,
     color: "white",
