@@ -99,6 +99,7 @@ export default function Mission() {
                   completedMissions.has(mission.number) &&
                     styles.buttonComplete,
                 ]}
+                disabled={mission.status}
               >
                 {completedMissions.has(mission.number) ? (
                   <Icon name="check" size={24} color="white" />
