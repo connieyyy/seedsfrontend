@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React from "react";
+import React, { useState } from "react";
 import {
   Dimensions,
   ImageBackground,
@@ -15,7 +15,19 @@ import food from "../assets/food.png";
 import log from "../assets/log.png";
 import missions from "../assets/missions.png";
 
+const frogStaticImage = require("../assets/froggy_sprites_anims/froggy_base.png");
+const frogJumpGif = require("../assets/froggy_sprites_anims/froggy_jump_once.gif");
+
 export default function App({ navigation }) {
+  const [isJumping, setIsJumping] = useState(false);
+
+  const handleFrogPress = () => {
+    setIsJumping(true);
+    setTimeout(() => {
+      setIsJumping(false);
+    }, 1000); // Adjust timeout based on the GIF duration
+  };
+
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -23,6 +35,14 @@ export default function App({ navigation }) {
         style={styles.backgroundImage}
         resizeMode="cover"
       >
+        <TouchableOpacity onPress={handleFrogPress} style={styles.frogButton}>
+          <Image
+            key={isJumping ? "jumping" : "static"}
+            source={isJumping ? frogJumpGif : frogStaticImage}
+            style={isJumping ? styles.frogJumpImage : styles.frogStaticImage}
+          />
+        </TouchableOpacity>
+
         <View style={styles.topbuttonContainer}>
           <TouchableOpacity
             style={styles.topbutton}
@@ -111,6 +131,25 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     resizeMode: "cover",
+  },
+
+  frogButton: {
+    position: "absolute",
+    bottom: 200,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  frogStaticImage: {
+    width: 320,
+    height: 280,
+    resizeMode: "contain",
+  },
+
+  frogJumpImage: {
+    width: 360,
+    height: 400,
+    resizeMode: "contain",
   },
 
   container: {
