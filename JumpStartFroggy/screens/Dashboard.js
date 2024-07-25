@@ -73,22 +73,22 @@ export default function App({ navigation }) {
     }
     try {
       await axios.put(`${API_URL}/${user.email}/updatePetName`, {
-        newPetName: newPetName,
+        newPetName,
       });
-      setPetInfo((prevInfo) => ({
-        ...prevInfo,
-        pet: [
-          {
-            petName: newPetName,
-          },
-        ],
-      }));
+
+      const updatedResponse = await axios.get(`${API_URL}/${user.email}`);
+
+      setPetInfo(updatedResponse.data);
       setIsEditing(false);
+
+      console.log("Pet name updated and fetched successfully!");
     } catch (err) {
-      console.error("Error updating pet name", err);
+      console.error(
+        "Error updating pet name:",
+        err.response?.data || err.message || err
+      );
     }
   };
-
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -111,7 +111,7 @@ export default function App({ navigation }) {
               </>
             ) : (
               <>
-                <Text style={styles.petInfoText}>{petInfo.petName}</Text>
+                <Text style={styles.petInfoText}>{petInfo.petName} </Text>
                 <TouchableOpacity onPress={handleEditPress}>
                   <Image source={pencilIcon} style={styles.pencilIcon} />
                 </TouchableOpacity>
