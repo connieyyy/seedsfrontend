@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { useUser } from "../UserContext.js";
 import frogimg from "../assets/froggy_sprites_anims/froggy_base.png";
-import Icon from "react-native-vector-icons/FontAwesome";
+import Icon from "react-native-vector-icons/FontAwesome"; // Correct import
 
 const API_URL = "http://localhost:3000/friends";
 
@@ -65,16 +65,18 @@ export default function FriendsPage() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Friends List</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter friend's username"
-        placeholderTextColor="white"
-        value={newFriend}
-        onChangeText={setNewFriend}
-      />
-      <TouchableOpacity style={styles.button} onPress={handleAddFriend}>
-        <Text style={styles.buttonText}>Add Friend +</Text>
-      </TouchableOpacity>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter friend's username"
+          placeholderTextColor="white"
+          value={newFriend}
+          onChangeText={setNewFriend}
+        />
+        <TouchableOpacity style={styles.addbutton} onPress={handleAddFriend}>
+          <Text style={styles.buttonText}>Add Friend</Text>
+        </TouchableOpacity>
+      </View>
       {error && <Text style={styles.error}>{error}</Text>}
       {noFriendsMessage && (
         <Text style={styles.noFriends}>{noFriendsMessage}</Text>
@@ -87,7 +89,7 @@ export default function FriendsPage() {
             <Image source={frogimg} style={styles.frogimg} />
             <Text style={styles.friendName}>{item}</Text>
             <TouchableOpacity
-              style={styles.button}
+              style={styles.removeButton}
               onPress={() => handleRemoveFriend(item)}
             >
               <Icon name="trash" size={20} color="white" />
@@ -113,23 +115,36 @@ const styles = StyleSheet.create({
     marginVertical: 30,
     color: "white",
   },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+  },
   input: {
     height: 40,
     borderColor: "transparent",
     borderRadius: 5,
     paddingHorizontal: 10,
-    marginBottom: 10,
     color: "white",
     backgroundColor: "black",
+    flex: 1,
+    marginRight: 10,
+  },
+  addbutton: {
+    backgroundColor: "#22493F",
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    alignItems: "center",
   },
   button: {
     backgroundColor: "#22493F",
     borderRadius: 30,
     paddingVertical: 10,
-    marginTop: 10,
     paddingHorizontal: 15,
-    alignSelf: "center",
+    alignItems: "center",
   },
+
   buttonText: {
     color: "white",
     fontSize: 16,
@@ -152,7 +167,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginVertical: 30,
+    marginVertical: 10,
     backgroundColor: "#22493F",
     borderRadius: 5,
     padding: 10,
@@ -160,5 +175,9 @@ const styles = StyleSheet.create({
   friendName: {
     fontSize: 18,
     color: "white",
+    flex: 1,
+  },
+  removeButton: {
+    padding: 5,
   },
 });
