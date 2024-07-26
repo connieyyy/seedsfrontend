@@ -8,7 +8,9 @@ import {
   TouchableOpacity,
   Image,
   Text,
+  Alert,
 } from "react-native";
+import axios from "axios";
 import background from "../assets/main.png";
 import frogbutton from "../assets/frogbutton.png";
 import decorate from "../assets/decorate.png";
@@ -30,8 +32,19 @@ export default function App({ navigation }) {
     setMessageIndex((prevIndex) => (prevIndex + 1) % messages.length);
   };
 
-  const handleOptionSelect = (option) => {
-    console.log(option);
+  const handleOptionSelect = async (option) => {
+    if (option === "Tips") {
+      try {
+        const response = await axios.post("http://localhost:3000/chat/ask", {
+          prompt: "Give me a nutrition tip.",
+        });
+        console.log(`response is ${response}`);
+        Alert.alert("Nutrition Tip", response.data.reply);
+      } catch (error) {
+        console.error("Error fetching nutrition tip:", error);
+        Alert.alert("Error", "Could not fetch nutrition tip.");
+      }
+    }
     setMessageIndex((prevIndex) => (prevIndex + 1) % messages.length);
   };
 
@@ -137,7 +150,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     position: "absolute",
     bottom: 450,
-
     justifyContent: "center",
     alignItems: "center",
     width: "50%",
