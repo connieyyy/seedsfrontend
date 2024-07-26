@@ -88,26 +88,6 @@ export default function App({ navigation }) {
               </TouchableOpacity>
             </View>
           )}
-          <View style={styles.bottomButtonContainer}>
-            <TouchableOpacity
-              style={styles.bottombutton}
-              onPress={() => navigation.navigate("Food")}
-            >
-              <Image source={food} style={styles.buttonImage} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.bottombutton}
-              onPress={() => navigation.navigate("Dashboard")}
-            >
-              <Image source={frogbutton} style={styles.buttonImage} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.bottombutton}
-              onPress={() => navigation.navigate("Closet")}
-            >
-              <Image source={decorate} style={styles.buttonImage} />
-            </TouchableOpacity>
-          </View>
         </View>
       </ImageBackground>
       <StatusBar style="auto" />

@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import froggy from "../assets/main.png";
 import chat from "../assets/chat.png";
-import decorate from "../assets/decorate.png";
+import frogbutton from "../assets/frogbutton.png";
 import food from "../assets/food.png";
 import log from "../assets/log.png";
 import missions from "../assets/missions.png";
@@ -182,12 +182,6 @@ export default function App({ navigation }) {
         <View style={styles.bottomButtonContainer}>
           <TouchableOpacity
             style={styles.bottombutton}
-            onPress={() => navigation.navigate("Food")}
-          >
-            <Image source={food} style={styles.buttonImage} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.bottombutton}
             onPress={() => navigation.navigate("Chat")}
           >
             <Image source={chat} style={styles.buttonImage} />
@@ -196,7 +190,13 @@ export default function App({ navigation }) {
             style={styles.bottombutton}
             onPress={() => navigation.navigate("Friends")}
           >
-            <Image source={decorate} style={styles.buttonImage} />
+            <Image source={frogbutton} style={styles.buttonImage} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.bottombutton}
+            onPress={() => navigation.navigate("Food")}
+          >
+            <Image source={food} style={styles.buttonImage} />
           </TouchableOpacity>
         </View>
       </ImageBackground>
