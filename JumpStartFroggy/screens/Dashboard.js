@@ -64,7 +64,7 @@ export default function App({ navigation }) {
           console.error("Error updating pet health:", err.message);
         }
       }
-    }, 25 * 60 * 1000);
+    }, 30 * 60 * 1000);
 
     setIntervalId(id);
     return () => clearInterval(id);
@@ -138,7 +138,7 @@ export default function App({ navigation }) {
               </>
             )}
           </View>
-          <Text style={styles.petInfoText}>Hunger:</Text>
+          <Text style={styles.petInfoText}>Health:</Text>
           <HealthBar health={petInfo.petHealthLevel} />
         </View>
 

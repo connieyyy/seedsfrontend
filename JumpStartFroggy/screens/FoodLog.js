@@ -10,6 +10,7 @@ import {
   FlatList,
   Modal,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import axios from "axios";
 import Icon from "react-native-vector-icons/MaterialIcons";
@@ -22,7 +23,11 @@ const API_URL = "http://localhost:3000/foodlogs";
 export default function FoodLog() {
   const [foodLogs, setFoodLogs] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [foodItem, setFoodItem] = useState({ name: "" });
+  const [foodItem, setFoodItem] = useState({
+    name: "",
+    description: "",
+    photolink: "",
+  });
   const { user } = useUser();
 
   useEffect(() => {
@@ -31,7 +36,6 @@ export default function FoodLog() {
         const today = new Date().toISOString().split("T")[0];
         try {
           const response = await axios.get(`${API_URL}/${user.email}/${today}`);
-          // Ensure response.data is a flat array
           const flattenedData = Array.isArray(response.data)
             ? response.data.flat()
             : [];
@@ -55,16 +59,50 @@ export default function FoodLog() {
           foodDescription: foodItem.description,
           foodPhotoLink: foodItem.photolink,
         });
-        console.log(foodItem);
         const response = await axios.get(`${API_URL}/${user.email}/${today}`);
         setFoodLogs(response.data ? response.data : []);
-        setFoodItem({ name: "" });
+        setFoodItem({ name: "", description: "", photolink: "" });
         setModalVisible(false);
       } catch (err) {
         console.error("Error adding food item:", err.message);
       }
     }
   };
+
+  const handleDeleteFoodItem = async (foodId) => {
+    try {
+      await axios.delete(`${API_URL}/${user.email}/${foodId}`);
+      setFoodLogs(foodLogs.filter((log) => log._id !== foodId));
+    } catch (err) {
+      console.error("Error deleting food item:", err.message);
+    }
+  };
+
+  const confirmDelete = (foodId) => {
+    Alert.alert(
+      "Delete Food Item",
+      "Are you sure you want to delete this food item?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Delete", onPress: () => handleDeleteFoodItem(foodId) },
+      ]
+    );
+  };
+
+  const renderFoodLogItem = ({ item }) => (
+    <View style={styles.missionBlock}>
+      <View style={styles.foodLogContent}>
+        <Text style={styles.missionTitle}>{item.foodName}</Text>
+        <Text style={styles.missionsubtitle}>{item.foodDescription}</Text>
+      </View>
+      <TouchableOpacity
+        onPress={() => confirmDelete(item._id)}
+        style={styles.deleteButton}
+      >
+        <Icon name="delete" size={24} color="white" />
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -85,14 +123,8 @@ export default function FoodLog() {
         <FlatList
           data={foodLogs}
           keyExtractor={(item) => item._id.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.missionBlock}>
-              <Text style={styles.missionTitle}>{item.foodName}</Text>
-              <Text style={styles.missionsubtitle}>{item.foodDescription}</Text>
-            </View>
-          )}
+          renderItem={renderFoodLogItem}
         />
-
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => setModalVisible(true)}
@@ -124,6 +156,14 @@ export default function FoodLog() {
               value={foodItem.description}
               onChangeText={(text) =>
                 setFoodItem({ ...foodItem, description: text })
+              }
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Photo Link"
+              value={foodItem.photolink}
+              onChangeText={(text) =>
+                setFoodItem({ ...foodItem, photolink: text })
               }
             />
             <Button title="Add Food" onPress={handleAddFoodItem} />
@@ -172,7 +212,8 @@ const styles = StyleSheet.create({
     paddingTop: 30,
   },
   missionBlock: {
-    alignItems: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: "#2A4D83",
     borderRadius: 10,
     padding: 15,
@@ -182,6 +223,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 2,
+  },
+  foodLogContent: {
+    flex: 1,
+  },
+  deleteButton: {
+    marginLeft: 10,
   },
   missionTitle: {
     fontSize: 20,
@@ -235,9 +282,5 @@ const styles = StyleSheet.create({
     borderBottomColor: "#ccc",
     paddingVertical: 10,
     marginBottom: 15,
-  },
-  foodLogTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
   },
 });
