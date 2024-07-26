@@ -114,8 +114,7 @@ export default function FoodLog() {
         <View style={styles.overlay}>
           <Text style={styles.overlaytitle}>Food Log</Text>
           <Text style={styles.overlayText}>
-            Log your meals for today. It counts toward your missions and resets
-            at midnight.
+            Log your meals for today; reset occurs at midnight.
           </Text>
         </View>
       </ImageBackground>

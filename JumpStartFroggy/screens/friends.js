@@ -69,7 +69,7 @@ export default function FriendsPage() {
         <TextInput
           style={styles.input}
           placeholder="Enter friend's username"
-          placeholderTextColor="white"
+          placeholderTextColor="black"
           value={newFriend}
           onChangeText={setNewFriend}
         />
@@ -125,8 +125,8 @@ const styles = StyleSheet.create({
     borderColor: "transparent",
     borderRadius: 5,
     paddingHorizontal: 10,
-    color: "white",
-    backgroundColor: "black",
+    color: "black",
+    backgroundColor: "white",
     flex: 1,
     marginRight: 10,
   },

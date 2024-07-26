@@ -34,7 +34,17 @@ export default function App() {
           <Stack.Screen name="Register" component={Register} />
           <Stack.Screen name="Foodlog" component={Foodlog} />
           <Stack.Screen name="Friends" component={Friends} />
-          <Stack.Screen name="Chat" component={Chat} />
+          <Stack.Screen
+            name="Chat"
+            component={Chat}
+            options={{
+              cardStyleInterpolator: ({ current }) => ({
+                cardStyle: {
+                  opacity: current.progress,
+                },
+              }),
+            }}
+          />
           <Stack.Screen name="Missions" component={Missions} />
           <Stack.Screen name="Food" component={Food} />
           <Stack.Screen
