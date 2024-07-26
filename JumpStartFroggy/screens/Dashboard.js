@@ -23,7 +23,8 @@ import pencilIcon from "../assets/pencil.png";
 import HealthBar from "./HealthBar";
 
 const frogStaticImage = require("../assets/froggy_sprites_anims/froggy_base.png");
-const frogJumpGif = require("../assets/froggy_sprites_anims/froggy_jump_once.gif");
+const frogJumpGif = require("../assets/froggy_sprites_anims/froggy_fly_once.gif");
+const frogJumpingGif = require("../assets/froggy_sprites_anims/froggy_jump.gif");
 
 export default function App({ navigation }) {
   const [isJumping, setIsJumping] = useState(false);
@@ -71,10 +72,12 @@ export default function App({ navigation }) {
   }, [user]);
 
   const handleFrogPress = () => {
-    setIsJumping(true);
-    setTimeout(() => {
-      setIsJumping(false);
-    }, 1000);
+    if (petInfo.petHealthLevel > 25 && petInfo.petHealthLevel < 90) {
+      setIsJumping(true);
+      setTimeout(() => {
+        setIsJumping(false);
+      }, 1000);
+    }
   };
 
   const handleEditPress = () => {
@@ -144,8 +147,20 @@ export default function App({ navigation }) {
 
         <TouchableWithoutFeedback onPress={handleFrogPress}>
           <Image
-            source={isJumping ? frogJumpGif : frogStaticImage}
-            style={isJumping ? styles.frogJumpImage : styles.frogStaticImage}
+            source={
+              petInfo.petHealthLevel > 90
+                ? frogJumpingGif
+                : isJumping
+                ? frogJumpGif
+                : frogStaticImage
+            }
+            style={
+              petInfo.petHealthLevel > 90
+                ? styles.frogJumpImage
+                : isJumping
+                ? styles.frogJumpImage
+                : styles.frogStaticImage
+            }
           />
         </TouchableWithoutFeedback>
 

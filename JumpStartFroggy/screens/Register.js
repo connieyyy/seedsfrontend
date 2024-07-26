@@ -44,7 +44,7 @@ export default function Register({ navigation }) {
 
           <TextInput
             style={styles.input}
-            placeholder="Name"
+            placeholder="Username"
             value={username}
             onChangeText={setUsername}
             autoCapitalize="none"
