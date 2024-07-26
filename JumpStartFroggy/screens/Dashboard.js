@@ -194,7 +194,7 @@ export default function App({ navigation }) {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.bottombutton}
-            onPress={() => navigation.navigate("Closet")}
+            onPress={() => navigation.navigate("Friends")}
           >
             <Image source={decorate} style={styles.buttonImage} />
           </TouchableOpacity>
