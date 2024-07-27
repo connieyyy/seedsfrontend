@@ -13,11 +13,12 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
-import * as ImagePicker from "react-native-image-picker"; // Ensure correct import
+import * as ImagePicker from "react-native-image-picker";
 import axios from "axios";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import swamp from "../assets/swamp.jpg";
 import { useUser } from "../UserContext.js";
+import { Swipeable } from "react-native-gesture-handler";
 
 const { height } = Dimensions.get("window");
 const API_URL = "http://localhost:3000/foodlogs";
@@ -117,6 +118,35 @@ export default function FoodLog() {
     }
   };
 
+  const renderFoodLogItem = ({ item }) => (
+    <Swipeable
+      renderRightActions={() => (
+        <TouchableOpacity
+          style={styles.deleteSwipeButton}
+          onPress={() => confirmDelete(item._id)}
+        >
+          <Icon name="delete" size={24} color="white" />
+        </TouchableOpacity>
+      )}
+    >
+      <View style={styles.missionBlock}>
+        <View style={styles.foodLogContent}>
+          {item.foodPhotoLink && item.foodPhotoLink.trim() !== "" ? (
+            <Image
+              source={{ uri: item.foodPhotoLink }}
+              style={styles.foodImage}
+              onError={() => {
+                console.log("Image failed to load");
+              }}
+            />
+          ) : null}
+          <Text style={styles.missionTitle}>{item.foodName}</Text>
+          <Text style={styles.missionsubtitle}>{item.foodDescription}</Text>
+        </View>
+      </View>
+    </Swipeable>
+  );
+
   const confirmDelete = (foodId) => {
     Alert.alert(
       "Delete Food Item",
@@ -127,30 +157,6 @@ export default function FoodLog() {
       ]
     );
   };
-
-  const renderFoodLogItem = ({ item }) => (
-    <View style={styles.missionBlock}>
-      <View style={styles.foodLogContent}>
-        {item.foodPhotoLink && item.foodPhotoLink.trim() !== "" ? (
-          <Image
-            source={{ uri: item.foodPhotoLink }}
-            style={styles.foodImage}
-            onError={() => {
-              console.log("Image failed to load");
-            }}
-          />
-        ) : null}
-        <Text style={styles.missionTitle}>{item.foodName}</Text>
-        <Text style={styles.missionsubtitle}>{item.foodDescription}</Text>
-      </View>
-      <TouchableOpacity
-        onPress={() => confirmDelete(item._id)}
-        style={styles.deleteButton}
-      >
-        <Icon name="delete" size={24} color="white" />
-      </TouchableOpacity>
-    </View>
-  );
 
   return (
     <View style={styles.container}>
@@ -274,8 +280,13 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
   },
-  deleteButton: {
-    marginLeft: 10,
+  deleteSwipeButton: {
+    backgroundColor: "#E57373", // Red color for delete action
+    justifyContent: "center",
+    alignItems: "center",
+    width: 80,
+    height: "100%",
+    borderRadius: 10,
   },
   missionTitle: {
     marginTop: 10,
@@ -291,11 +302,11 @@ const styles = StyleSheet.create({
     color: "white",
   },
   addButton: {
+    shadowOpacity: 0.5,
     backgroundColor: "#2A4D83",
     borderWidth: 1,
-    borderColor: "#fff",
+    borderColor: "transparent",
     borderRadius: 30,
-    borderRadius: 50,
     width: 60,
     height: 60,
     justifyContent: "center",
@@ -336,7 +347,8 @@ const styles = StyleSheet.create({
   },
   foodImage: {
     width: "100%",
-    height: 100,
-    overflow: "hidden",
+    height: undefined,
+    aspectRatio: 2,
+    resizeMode: "contain",
   },
 });

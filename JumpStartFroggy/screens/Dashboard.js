@@ -188,13 +188,13 @@ export default function App({ navigation }) {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.bottombutton}
-            onPress={() => navigation.navigate("Friends")}
+            onPress={() => navigation.navigate("Feed")}
           >
             <Image source={frogbutton} style={styles.buttonImage} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.bottombutton}
-            onPress={() => navigation.navigate("Food")}
+            onPress={() => navigation.navigate("Store")}
           >
             <Image source={food} style={styles.buttonImage} />
           </TouchableOpacity>
