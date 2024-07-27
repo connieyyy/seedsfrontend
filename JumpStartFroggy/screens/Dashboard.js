@@ -65,7 +65,7 @@ export default function App({ navigation }) {
           console.error("Error updating pet health:", err.message);
         }
       }
-    }, 30 * 60 * 1000);
+    }, 60 * 30 * 1000);
 
     setIntervalId(id);
     return () => clearInterval(id);

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
+  Image,
   TextInput,
   Button,
   ImageBackground,
@@ -12,6 +13,7 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
+import * as ImagePicker from "react-native-image-picker"; // Ensure correct import
 import axios from "axios";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import swamp from "../assets/swamp.jpg";
@@ -26,7 +28,7 @@ export default function FoodLog() {
   const [foodItem, setFoodItem] = useState({
     name: "",
     description: "",
-    photolink: "",
+    image: null,
   });
   const { user } = useUser();
 
@@ -48,20 +50,57 @@ export default function FoodLog() {
     fetchFoodLogs();
   }, [user]);
 
+  const handleImagePick = () => {
+    if (!ImagePicker.launchImageLibrary) {
+      console.error("ImagePicker is not available.");
+      return;
+    }
+
+    const options = {
+      mediaType: "photo",
+    };
+    ImagePicker.launchImageLibrary(options, (response) => {
+      if (response.didCancel) {
+        console.log("User cancelled image picker");
+      } else if (response.error) {
+        console.log("ImagePicker Error: ", response.error);
+      } else if (response.assets && response.assets.length > 0) {
+        const selectedImage = response.assets[0];
+        setFoodItem({
+          ...foodItem,
+          image: selectedImage,
+        });
+      }
+    });
+  };
+
   const handleAddFoodItem = async () => {
     if (user && user.email) {
       const today = new Date().toISOString().split("T")[0];
+
+      const formData = new FormData();
+      formData.append("email", user.email);
+      formData.append("foodName", foodItem.name);
+      formData.append("date", today);
+      formData.append("foodDescription", foodItem.description);
+
+      if (foodItem.image) {
+        formData.append("image", {
+          uri: foodItem.image.uri,
+          type: foodItem.image.type,
+          name: foodItem.image.fileName || "food_image.jpg",
+        });
+      }
+
       try {
-        await axios.post(API_URL, {
-          email: user.email,
-          foodName: foodItem.name,
-          date: today,
-          foodDescription: foodItem.description,
-          foodPhotoLink: foodItem.photolink,
+        await axios.post(API_URL, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         });
         const response = await axios.get(`${API_URL}/${user.email}/${today}`);
         setFoodLogs(response.data ? response.data : []);
-        setFoodItem({ name: "", description: "", photolink: "" });
+        setFoodItem({ name: "", description: "", image: null });
         setModalVisible(false);
       } catch (err) {
         console.error("Error adding food item:", err.message);
@@ -92,6 +131,15 @@ export default function FoodLog() {
   const renderFoodLogItem = ({ item }) => (
     <View style={styles.missionBlock}>
       <View style={styles.foodLogContent}>
+        {item.foodPhotoLink && item.foodPhotoLink.trim() !== "" ? (
+          <Image
+            source={{ uri: item.foodPhotoLink }}
+            style={styles.foodImage}
+            onError={() => {
+              console.log("Image failed to load");
+            }}
+          />
+        ) : null}
         <Text style={styles.missionTitle}>{item.foodName}</Text>
         <Text style={styles.missionsubtitle}>{item.foodDescription}</Text>
       </View>
@@ -118,6 +166,7 @@ export default function FoodLog() {
           </Text>
         </View>
       </ImageBackground>
+
       <View style={styles.instructionsContainer}>
         <FlatList
           data={foodLogs}
@@ -157,14 +206,11 @@ export default function FoodLog() {
                 setFoodItem({ ...foodItem, description: text })
               }
             />
-            <TextInput
-              style={styles.input}
-              placeholder="Photo Link"
-              value={foodItem.photolink}
-              onChangeText={(text) =>
-                setFoodItem({ ...foodItem, photolink: text })
-              }
-            />
+            <TouchableOpacity onPress={handleImagePick}>
+              <Text style={styles.input}>
+                {foodItem.image ? foodItem.image.fileName : "Choose Photo"}
+              </Text>
+            </TouchableOpacity>
             <Button title="Add Food" onPress={handleAddFoodItem} />
             <Button title="Cancel" onPress={() => setModalVisible(false)} />
           </View>
@@ -222,14 +268,17 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 2,
+    width: "100%",
   },
   foodLogContent: {
     flex: 1,
+    width: "100%",
   },
   deleteButton: {
     marginLeft: 10,
   },
   missionTitle: {
+    marginTop: 10,
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 10,
@@ -243,6 +292,9 @@ const styles = StyleSheet.create({
   },
   addButton: {
     backgroundColor: "#2A4D83",
+    borderWidth: 1,
+    borderColor: "#fff",
+    borderRadius: 30,
     borderRadius: 50,
     width: 60,
     height: 60,
@@ -281,5 +333,10 @@ const styles = StyleSheet.create({
     borderBottomColor: "#ccc",
     paddingVertical: 10,
     marginBottom: 15,
+  },
+  foodImage: {
+    width: "100%",
+    height: 100,
+    overflow: "hidden",
   },
 });

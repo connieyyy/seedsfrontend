@@ -47,5 +47,12 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to your camera for adding food images</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library for adding food images</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>We need access to your photo library for saving food images</string>
+
 </dict>
 </plist>

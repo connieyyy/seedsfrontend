@@ -33,7 +33,7 @@ export default function FriendsPage() {
       const response = await axios.get(`${API_URL}/${user.email}`);
       const friendsList = response.data;
       if (friendsList.length === 0) {
-        setNoFriendsMessage("No friends yet");
+        setNoFriendsMessage("");
       } else {
         setNoFriendsMessage("");
       }
@@ -49,7 +49,7 @@ export default function FriendsPage() {
       setNewFriend("");
       fetchFriends();
     } catch (err) {
-      setError("Error adding friend");
+      setError("Please check if username exists and is not yourself.");
     }
   };
 
