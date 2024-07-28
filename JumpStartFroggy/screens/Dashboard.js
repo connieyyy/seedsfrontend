@@ -25,6 +25,7 @@ import HealthBar from "./HealthBar";
 const frogStaticImage = require("../assets/froggy_sprites_anims/froggy_base.png");
 const frogJumpGif = require("../assets/froggy_sprites_anims/froggy_fly_once.gif");
 const frogJumpingGif = require("../assets/froggy_sprites_anims/froggy_jump.gif");
+const sadfrogGif = require("../assets/froggy_sprites_anims/froggy_sad.gif");
 
 export default function App({ navigation }) {
   const [isJumping, setIsJumping] = useState(false);
@@ -65,7 +66,7 @@ export default function App({ navigation }) {
           console.error("Error updating pet health:", err.message);
         }
       }
-    }, 60 * 30 * 1000);
+    }, 30 * 60 * 1000);
 
     setIntervalId(id);
     return () => clearInterval(id);
@@ -148,14 +149,18 @@ export default function App({ navigation }) {
         <TouchableWithoutFeedback onPress={handleFrogPress}>
           <Image
             source={
-              petInfo.petHealthLevel > 90
+              petInfo.petHealthLevel <= 25
+                ? sadfrogGif
+                : petInfo.petHealthLevel > 90
                 ? frogJumpingGif
                 : isJumping
                 ? frogJumpGif
                 : frogStaticImage
             }
             style={
-              petInfo.petHealthLevel > 90
+              petInfo.petHealthLevel <= 25
+                ? styles.frogJumpImage
+                : petInfo.petHealthLevel > 90
                 ? styles.frogJumpImage
                 : isJumping
                 ? styles.frogJumpImage
