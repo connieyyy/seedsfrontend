@@ -21,6 +21,7 @@ import axios from "axios";
 import { useUser } from "../UserContext.js";
 import pencilIcon from "../assets/pencil.png";
 import HealthBar from "./HealthBar";
+import decor from "../assets/decor.png";
 
 const frogStaticImage = require("../assets/froggy_sprites_anims/froggy_base.png");
 const frogJumpGif = require("../assets/froggy_sprites_anims/froggy_fly_once.gif");
@@ -201,7 +202,7 @@ export default function App({ navigation }) {
             style={styles.bottombutton}
             onPress={() => navigation.navigate("Store")}
           >
-            <Image source={food} style={styles.buttonImage} />
+            <Image source={decor} style={styles.buttonImage} />
           </TouchableOpacity>
         </View>
       </ImageBackground>

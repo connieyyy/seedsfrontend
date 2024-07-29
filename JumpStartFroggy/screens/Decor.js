@@ -14,6 +14,7 @@ import lilypadlogin from "../assets/lilypadlogin.jpg";
 import basefrog from "../assets/froggy_sprites_anims/froggy_base.png";
 import eatingfrog from "../assets/froggy_sprites_anims/froggy_eat.gif";
 import food from "../assets/food.png";
+import shop from "../assets/shop.png";
 import { useUser } from "../UserContext.js";
 
 export default function Decor({ navigation }) {
@@ -131,7 +132,7 @@ export default function Decor({ navigation }) {
           style={styles.bottombutton}
           onPress={() => navigation.navigate("Store")}
         >
-          <Image source={food} style={styles.buttonImage} />
+          <Image source={shop} style={styles.buttonImage} />
         </TouchableOpacity>
       </ImageBackground>
     </View>
