@@ -13,10 +13,11 @@ import axios from "axios";
 import { useUser } from "../UserContext.js";
 import lilypad from "../assets/lilypadlogin.jpg";
 import frogcoin from "../assets/frogcoin.png";
+import food from "../assets/food.png";
 
 const API_URL = "http://localhost:3000/store";
 
-export default function Feed() {
+export default function Store({ navigation }) {
   const [storeItems, setStoreItems] = useState([]);
   const [coinValue, setCoinValue] = useState(0);
   const { user } = useUser();
@@ -107,6 +108,13 @@ export default function Feed() {
             contentContainerStyle={styles.listContainer}
           />
         </View>
+
+        <TouchableOpacity
+          style={styles.bottombutton}
+          onPress={() => navigation.navigate("Decor")}
+        >
+          <Image source={food} style={styles.buttonImage} />
+        </TouchableOpacity>
       </ImageBackground>
     </View>
   );
@@ -235,5 +243,24 @@ const styles = StyleSheet.create({
     color: "white",
     marginTop: 5,
     textAlign: "center",
+  },
+  bottomButtonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
+    alignItems: "center",
+    position: "absolute",
+  },
+  bottombutton: {
+    marginTop: 10,
+    borderRadius: 35,
+    width: 70,
+    height: 70,
+    overflow: "hidden",
+  },
+  buttonImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
   },
 });

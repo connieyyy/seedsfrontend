@@ -13,7 +13,7 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
-import * as ImagePicker from "react-native-image-picker";
+import { launchImageLibrary } from "react-native-image-picker";
 import axios from "axios";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import swamp from "../assets/swamp.jpg";
@@ -52,7 +52,7 @@ export default function FoodLog() {
   }, [user]);
 
   const handleImagePick = () => {
-    if (!ImagePicker.launchImageLibrary) {
+    if (!launchImageLibrary) {
       console.error("ImagePicker is not available.");
       return;
     }
@@ -60,7 +60,7 @@ export default function FoodLog() {
     const options = {
       mediaType: "photo",
     };
-    ImagePicker.launchImageLibrary(options, (response) => {
+    launchImageLibrary(options, (response) => {
       if (response.didCancel) {
         console.log("User cancelled image picker");
       } else if (response.error) {

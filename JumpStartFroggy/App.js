@@ -11,6 +11,7 @@ import Missions from "./screens/Mission.js";
 import Friends from "./screens/friends.js";
 import Feed from "./screens/Feed.js";
 import Store from "./screens/Store.js";
+import Decor from "./screens/Decor.js";
 import { UserProvider } from "./UserContext.js";
 
 const Stack = createStackNavigator();
@@ -37,6 +38,7 @@ export default function App() {
           <Stack.Screen name="Foodlog" component={Foodlog} />
           <Stack.Screen name="Friends" component={Friends} />
           <Stack.Screen name="Store" component={Store} />
+          <Stack.Screen name="Decor" component={Decor} />
           <Stack.Screen
             name="Chat"
             component={Chat}
