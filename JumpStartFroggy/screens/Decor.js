@@ -18,7 +18,7 @@ import { useUser } from "../UserContext.js";
 export default function Decor({ navigation }) {
   const [purchasedItems, setPurchasedItems] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
-  const [isEating, setIsEating] = useState(false); // New state for eating animation
+  const [isEating, setIsEating] = useState(false);
   const { user } = useUser();
   const API_URL = "http://localhost:3000/decor";
 
@@ -66,9 +66,9 @@ export default function Decor({ navigation }) {
             .filter((item) => item.count > 0);
 
           setPurchasedItems(updatedItems);
-          setSelectedItem(null); // Reset the selected item
-          setIsEating(true); // Trigger the eating animation
-          setTimeout(() => setIsEating(false), 2000); // Reset after 2 seconds
+          setSelectedItem(null);
+          setIsEating(true);
+          setTimeout(() => setIsEating(false), 2000);
         })
         .catch((error) => {
           if (error.response && error.response.data.error === "Pet is full") {
@@ -91,6 +91,9 @@ export default function Decor({ navigation }) {
         resizeMode="cover"
       >
         <Text style={styles.titletext}>Inventory</Text>
+        <Text style={styles.subtitletext}>
+          Select item to press button to feed pet.
+        </Text>
         <View style={styles.cupboard}>
           {purchasedItems.map((item) => (
             <TouchableOpacity
@@ -107,6 +110,7 @@ export default function Decor({ navigation }) {
             </TouchableOpacity>
           ))}
         </View>
+
         <Image
           style={styles.basefrog}
           source={isEating ? eatingfrog : basefrog}
@@ -118,7 +122,7 @@ export default function Decor({ navigation }) {
             onPress={handleActionPress}
           >
             <Text style={styles.actionButtonText}>
-              {selectedItem.itemType === "food" ? "Feed" : "Save"}
+              {selectedItem.itemType === "food" ? "Feed" : "Equip"}
             </Text>
           </TouchableOpacity>
         )}
@@ -135,8 +139,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   basefrog: {
-    width: 300,
-    height: 250,
+    width: 200,
+    height: 150,
   },
   backgroundImage: {
     flex: 1,
@@ -149,6 +153,12 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 35,
     fontWeight: "bold",
+    textAlign: "center",
+    padding: 10,
+  },
+  subtitletext: {
+    color: "white",
+    fontSize: 20,
     padding: 10,
   },
   bottombutton: {
@@ -166,7 +176,7 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 50,
+    marginBottom: 150,
     backgroundColor: "#35725D",
     padding: 10,
     borderRadius: 10,
