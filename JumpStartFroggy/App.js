@@ -38,7 +38,11 @@ export default function App() {
           <Stack.Screen name="Foodlog" component={Foodlog} />
           <Stack.Screen name="Friends" component={Friends} />
           <Stack.Screen name="Store" component={Store} />
-          <Stack.Screen name="Decor" component={Decor} />
+          <Stack.Screen
+            name="Decor"
+            component={Decor}
+            options={{ headerLeft: null }}
+          />
           <Stack.Screen
             name="Chat"
             component={Chat}

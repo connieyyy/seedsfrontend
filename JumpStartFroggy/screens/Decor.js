@@ -13,6 +13,7 @@ import axios from "axios";
 import lilypadlogin from "../assets/lilypadlogin.jpg";
 import basefrog from "../assets/froggy_sprites_anims/froggy_base.png";
 import eatingfrog from "../assets/froggy_sprites_anims/froggy_eat.gif";
+import food from "../assets/food.png";
 import { useUser } from "../UserContext.js";
 
 export default function Decor({ navigation }) {
@@ -92,7 +93,7 @@ export default function Decor({ navigation }) {
       >
         <Text style={styles.titletext}>Inventory</Text>
         <Text style={styles.subtitletext}>
-          Select item to press button to feed pet.
+          Select item and press button to feed pet.
         </Text>
         <View style={styles.cupboard}>
           {purchasedItems.map((item) => (
@@ -118,7 +119,7 @@ export default function Decor({ navigation }) {
         />
         {selectedItem && (
           <TouchableOpacity
-            style={[styles.bottombutton, styles.actionButton]}
+            style={styles.actionButton}
             onPress={handleActionPress}
           >
             <Text style={styles.actionButtonText}>
@@ -126,7 +127,12 @@ export default function Decor({ navigation }) {
             </Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity style={styles.bottombutton}></TouchableOpacity>
+        <TouchableOpacity
+          style={styles.bottombutton}
+          onPress={() => navigation.navigate("Store")}
+        >
+          <Image source={food} style={styles.buttonImage} />
+        </TouchableOpacity>
       </ImageBackground>
     </View>
   );
@@ -160,11 +166,6 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 20,
     padding: 10,
-  },
-  bottombutton: {
-    marginTop: 10,
-    borderRadius: 35,
-    overflow: "hidden",
   },
   buttonImage: {
     width: "100%",
@@ -203,15 +204,29 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   actionButton: {
-    position: "absolute",
-    bottom: 100,
+    marginTop: 30,
     alignSelf: "center",
     backgroundColor: "#35725D",
-    padding: 15,
-    borderRadius: 20,
+    paddingRight: 30,
+    paddingLeft: 30,
+    paddingTop: 10,
+    paddingBottom: 10,
+    borderRadius: 10,
   },
   actionButtonText: {
     color: "white",
-    fontSize: 16,
+    fontSize: 24,
+  },
+  bottombutton: {
+    marginTop: 30,
+    borderRadius: 35,
+    width: 70,
+    height: 70,
+    overflow: "hidden",
+  },
+  buttonImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
   },
 });
