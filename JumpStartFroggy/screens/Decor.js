@@ -35,7 +35,7 @@ export default function Decor({ navigation }) {
           }, {});
 
           const itemsArray = Object.values(itemCount);
-          setPurchasedItems(itemsArray.filter((item) => item.count > 0));
+          setPurchasedItems(itemsArray);
         })
         .catch((error) => {
           console.error("Error fetching purchased items:", error);
@@ -49,13 +49,8 @@ export default function Decor({ navigation }) {
 
   const handleActionPress = () => {
     if (selectedItem.itemType === "food") {
-      console.log("Feed button pressed");
-      // Add your feed logic here
-    } else if (selectedItem.itemType === "accessory") {
-      console.log("Put on button pressed");
-      // Add your put on logic here
+    } else {
     }
-    setSelectedItem(null);
   };
 
   return (
@@ -65,6 +60,7 @@ export default function Decor({ navigation }) {
         style={styles.backgroundImage}
         resizeMode="cover"
       >
+        <Text style={styles.titletext}>Inventory</Text>
         <View style={styles.cupboard}>
           {purchasedItems.map((item) => (
             <TouchableOpacity
@@ -81,23 +77,17 @@ export default function Decor({ navigation }) {
             </TouchableOpacity>
           ))}
         </View>
+        <Image style={styles.basefrog} source={basefrog} resizeMode="contain" />
         {selectedItem && (
           <TouchableOpacity
-            style={styles.actionButton}
+            style={[styles.bottombutton, styles.actionButton]}
             onPress={handleActionPress}
           >
             <Text style={styles.actionButtonText}>
-              {selectedItem.itemType === "food" ? "Feed" : "Put on"}
+              {selectedItem.itemType === "food" ? "Feed" : "Save"}
             </Text>
           </TouchableOpacity>
         )}
-        <Image style={styles.basefrog} source={basefrog} resizeMode="contain" />
-        <TouchableOpacity
-          style={styles.bottombutton}
-          onPress={() => navigation.navigate("Store")}
-        >
-          <Image source={food} style={styles.buttonImage} />
-        </TouchableOpacity>
         <TouchableOpacity style={styles.bottombutton}></TouchableOpacity>
       </ImageBackground>
     </View>
@@ -121,11 +111,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  titletext: {
+    color: "white",
+    fontSize: 35,
+    fontWeight: "bold",
+    padding: 10,
+  },
   bottombutton: {
     marginTop: 10,
     borderRadius: 35,
-    width: 70,
-    height: 70,
     overflow: "hidden",
   },
   buttonImage: {
@@ -138,7 +132,7 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 50,
     backgroundColor: "#35725D",
     padding: 10,
     borderRadius: 10,
@@ -156,22 +150,24 @@ const styles = StyleSheet.create({
   },
   itemCount: {
     position: "absolute",
-    fontSize: 20,
     bottom: 0,
     right: 0,
     color: "white",
     borderRadius: 10,
     padding: 2,
+    fontSize: 20,
+    fontWeight: "bold",
   },
   actionButton: {
     position: "absolute",
-    bottom: 20,
-    backgroundColor: "#4ba17e",
-    padding: 10,
-    borderRadius: 10,
+    bottom: 100,
+    alignSelf: "center",
+    backgroundColor: "#35725D",
+    padding: 15,
+    borderRadius: 20,
   },
   actionButtonText: {
     color: "white",
-    fontSize: 18,
+    fontSize: 16,
   },
 });
