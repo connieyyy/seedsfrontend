@@ -7,16 +7,18 @@ import {
   Dimensions,
   TouchableOpacity,
   Text,
+  Alert,
 } from "react-native";
 import axios from "axios";
 import lilypadlogin from "../assets/lilypadlogin.jpg";
 import basefrog from "../assets/froggy_sprites_anims/froggy_base.png";
-import food from "../assets/food.png";
+import eatingfrog from "../assets/froggy_sprites_anims/froggy_eat.gif";
 import { useUser } from "../UserContext.js";
 
 export default function Decor({ navigation }) {
   const [purchasedItems, setPurchasedItems] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [isEating, setIsEating] = useState(false); // New state for eating animation
   const { user } = useUser();
   const API_URL = "http://localhost:3000/decor";
 
@@ -48,8 +50,36 @@ export default function Decor({ navigation }) {
   };
 
   const handleActionPress = () => {
-    if (selectedItem.itemType === "food") {
-    } else {
+    if (selectedItem) {
+      axios
+        .post(`${API_URL}/${user.email}`, {
+          inventoryItem: selectedItem.itemName,
+        })
+        .then((response) => {
+          console.log("Item used:", response.data);
+          const updatedItems = purchasedItems
+            .map((item) =>
+              item._id === selectedItem._id
+                ? { ...item, count: item.count - 1 }
+                : item
+            )
+            .filter((item) => item.count > 0);
+
+          setPurchasedItems(updatedItems);
+          setSelectedItem(null); // Reset the selected item
+          setIsEating(true); // Trigger the eating animation
+          setTimeout(() => setIsEating(false), 2000); // Reset after 2 seconds
+        })
+        .catch((error) => {
+          if (error.response && error.response.data.error === "Pet is full") {
+            Alert.alert(
+              "Cannot feed the pet",
+              "Your pet is full and cannot eat more."
+            );
+          } else {
+            console.error("Error using item:", error);
+          }
+        });
     }
   };
 
@@ -77,7 +107,11 @@ export default function Decor({ navigation }) {
             </TouchableOpacity>
           ))}
         </View>
-        <Image style={styles.basefrog} source={basefrog} resizeMode="contain" />
+        <Image
+          style={styles.basefrog}
+          source={isEating ? eatingfrog : basefrog}
+          resizeMode="contain"
+        />
         {selectedItem && (
           <TouchableOpacity
             style={[styles.bottombutton, styles.actionButton]}
