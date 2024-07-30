@@ -11,15 +11,36 @@ import {
 } from "react-native";
 import axios from "axios";
 import lilypadlogin from "../assets/lilypadlogin.jpg";
+
 import basefrog from "../assets/froggy_sprites_anims/froggy_base.png";
+import bowfrog from "../assets/accessorysprites/bowfroggy/bowfroggy.png";
+import partyfrog from "../assets/accessorysprites/partyfroggy/partyfroggy.png";
+import tophatfrog from "../assets/accessorysprites/tophatfroggy/tophatfroggy.png";
+
 import eatingfrog from "../assets/froggy_sprites_anims/froggy_eat.gif";
-import food from "../assets/food.png";
+import boweating from "../assets/accessorysprites/bowfroggy/bowfroggy_eat.gif";
+import partyeating from "../assets/accessorysprites/partyfroggy/partyfroggy_eat.gif";
+import topeating from "../assets/accessorysprites/tophatfroggy/tophatfroggy_eat.gif";
+
 import shop from "../assets/shop.png";
 import { useUser } from "../UserContext.js";
+
+const accessoryGifs = {
+  Bow: bowfrog,
+  "Party Hat": partyfrog,
+  "Top Hat": tophatfrog,
+};
+
+const eatingGifs = {
+  Bow: boweating,
+  "Party Hat": partyeating,
+  "Top Hat": topeating,
+};
 
 export default function Decor({ navigation }) {
   const [purchasedItems, setPurchasedItems] = useState([]);
   const [isEating, setIsEating] = useState(false);
+  const [accessory, setAccessory] = useState(null);
   const { user } = useUser();
   const API_URL = "http://localhost:3000/decor";
 
@@ -43,10 +64,30 @@ export default function Decor({ navigation }) {
         .catch((error) => {
           console.error("Error fetching purchased items:", error);
         });
+
+      axios
+        .get(`http://localhost:3000/pets/${user.email}/accessory`)
+        .then((response) => {
+          const accessory = response.data.accessory;
+          setAccessory(accessory);
+        })
+        .catch((error) => {
+          console.error("Error fetching pet accessory:", error);
+        });
     }
   }, [user]);
 
+  const getFrogImage = () => {
+    if (isEating) {
+      return accessory ? eatingGifs[accessory] || eatingfrog : eatingfrog;
+    } else {
+      return accessory ? accessoryGifs[accessory] : basefrog;
+    }
+  };
+
   const handleItemPress = (item) => {
+    const isFood = item.itemType === "food";
+
     axios
       .post(`${API_URL}/${user.email}`, {
         inventoryItem: item.itemName,
@@ -57,8 +98,12 @@ export default function Decor({ navigation }) {
           .filter((i) => i.count > 0);
 
         setPurchasedItems(updatedItems);
-        setIsEating(true);
-        setTimeout(() => setIsEating(false), 2000);
+        if (isFood) {
+          setIsEating(true);
+          setTimeout(() => setIsEating(false), 3000);
+        } else {
+          setAccessory(item.itemName);
+        }
       })
       .catch((error) => {
         if (error.response && error.response.data.error === "Pet is full") {
@@ -102,9 +147,10 @@ export default function Decor({ navigation }) {
 
         <Image
           style={styles.basefrog}
-          source={isEating ? eatingfrog : basefrog}
+          source={getFrogImage()}
           resizeMode="contain"
         />
+
         <TouchableOpacity
           style={styles.bottombutton}
           onPress={() => navigation.navigate("Store")}
@@ -188,10 +234,5 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     overflow: "hidden",
-  },
-  buttonImage: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "cover",
   },
 });
