@@ -11,27 +11,61 @@ import {
   Text,
   TextInput,
 } from "react-native";
+import axios from "axios";
 import froggy from "../assets/main.png";
 import chat from "../assets/chat.png";
 import frogbutton from "../assets/frogbutton.png";
 import log from "../assets/log.png";
 import missions from "../assets/missions.png";
-import logoutIcon from "../assets/logout.png"; // Import the logout icon
-import axios from "axios";
+import logoutIcon from "../assets/logout.png";
 import { useUser } from "../UserContext.js";
 import pencilIcon from "../assets/pencil.png";
 import HealthBar from "./HealthBar";
 import decor from "../assets/decor.png";
+import bowjumping from "../assets/accessorysprites/bowfroggy/bowfroggy_jump.gif";
+import bowsad from "../assets/accessorysprites/bowfroggy/bowfroggy_sad.gif";
+import bowfrog from "../assets/accessorysprites/bowfroggy/bowfroggy.png";
+import bowflying from "../assets/accessorysprites/bowfroggy/bowfroggy_fly_once.gif";
+import partyjumping from "../assets/accessorysprites/partyfroggy/partyfroggy_jump.gif";
+import partysad from "../assets/accessorysprites/partyfroggy/partyfroggy_sad.gif";
+import partyfrog from "../assets/accessorysprites/partyfroggy/partyfroggy.png";
+import partyflying from "../assets/accessorysprites/partyfroggy/partyfroggy_fly_once.gif";
+import tophatjumping from "../assets/accessorysprites/tophatfroggy/tophatfroggy_jump.gif";
+import tophatsad from "../assets/accessorysprites/tophatfroggy/tophatfroggy_sad.gif";
+import tophatfrog from "../assets/accessorysprites/tophatfroggy/tophatfroggy.png";
+import tophatflying from "../assets/accessorysprites/tophatfroggy/tophatfroggy_fly_once.gif";
 
 const frogStaticImage = require("../assets/froggy_sprites_anims/froggy_base.png");
 const frogJumpGif = require("../assets/froggy_sprites_anims/froggy_fly_once.gif");
 const frogJumpingGif = require("../assets/froggy_sprites_anims/froggy_jump.gif");
 const sadfrogGif = require("../assets/froggy_sprites_anims/froggy_sad.gif");
 
+const accessoryImages = {
+  "Top Hat": {
+    healthLow: tophatsad,
+    healthMedium: tophatfrog,
+    healthHigh: tophatjumping,
+    flying: tophatflying,
+  },
+  "Party Hat": {
+    healthLow: partysad,
+    healthMedium: partyfrog,
+    healthHigh: partyjumping,
+    flying: partyflying,
+  },
+  Bow: {
+    healthLow: bowsad,
+    healthMedium: bowfrog,
+    healthHigh: bowjumping,
+    flying: bowflying,
+  },
+};
+
 export default function App({ navigation }) {
   const [isJumping, setIsJumping] = useState(false);
+  const [frogImage, setFrogImage] = useState(frogStaticImage);
   const [petInfo, setPetInfo] = useState({
-    pet: [{ petName: "Froggy", petHealthLevel: 70 }],
+    pet: [{ petName: "Froggy", petHealthLevel: 70, accessory: "" }],
   });
   const [intervalId, setIntervalId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -67,11 +101,40 @@ export default function App({ navigation }) {
           console.error("Error updating pet health:", err.message);
         }
       }
-    }, 30 * 60 * 1000);
+    }, 60 * 30 * 1000);
 
     setIntervalId(id);
     return () => clearInterval(id);
   }, [user]);
+
+  useEffect(() => {
+    const fetchImage = async () => {
+      const image = await getFrogImage();
+      setFrogImage(image);
+    };
+    fetchImage();
+  }, [petInfo.petHealthLevel, isJumping]);
+
+  const getFrogImage = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3000/pets/${user.email}/accessory`
+      );
+      const accessory = response.data.accessory;
+      const frogHealth = petInfo.petHealthLevel;
+
+      if (frogHealth < 25)
+        return accessoryImages[accessory]?.healthLow || sadfrogGif;
+      if (frogHealth < 90)
+        return isJumping
+          ? accessoryImages[accessory]?.flying || frogJumpGif
+          : accessoryImages[accessory]?.healthMedium || frogStaticImage;
+      return accessoryImages[accessory]?.healthHigh || frogJumpingGif;
+    } catch (error) {
+      console.error("Error fetching pet accessory:", error);
+      return sadfrogGif;
+    }
+  };
 
   const handleFrogPress = () => {
     if (petInfo.petHealthLevel > 25 && petInfo.petHealthLevel < 90) {
@@ -153,21 +216,11 @@ export default function App({ navigation }) {
 
         <TouchableWithoutFeedback onPress={handleFrogPress}>
           <Image
-            source={
-              petInfo.petHealthLevel <= 25
-                ? sadfrogGif
-                : petInfo.petHealthLevel > 90
-                ? frogJumpingGif
-                : isJumping
-                ? frogJumpGif
-                : frogStaticImage
-            }
+            source={frogImage}
             style={
-              petInfo.petHealthLevel <= 25
-                ? styles.frogJumpImage
-                : petInfo.petHealthLevel > 90
-                ? styles.frogJumpImage
-                : isJumping
+              petInfo.petHealthLevel <= 25 ||
+              petInfo.petHealthLevel > 90 ||
+              isJumping
                 ? styles.frogJumpImage
                 : styles.frogStaticImage
             }
@@ -216,8 +269,8 @@ export default function App({ navigation }) {
             <Image source={decor} style={styles.buttonImage} />
           </TouchableOpacity>
         </View>
+        <StatusBar style="auto" />
       </ImageBackground>
-      <StatusBar style="auto" />
     </View>
   );
 }
