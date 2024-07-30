@@ -16,7 +16,7 @@ import Icon from "react-native-vector-icons/FontAwesome"; // Correct import
 const API_URL = "http://localhost:3000/friends";
 
 export default function FriendsPage() {
-  const { user } = useUser(); // Accessing user from context
+  const { user } = useUser();
   const [friends, setFriends] = useState([]);
   const [newFriend, setNewFriend] = useState("");
   const [error, setError] = useState("");
