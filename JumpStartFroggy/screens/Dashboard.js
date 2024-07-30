@@ -14,9 +14,9 @@ import {
 import froggy from "../assets/main.png";
 import chat from "../assets/chat.png";
 import frogbutton from "../assets/frogbutton.png";
-import food from "../assets/food.png";
 import log from "../assets/log.png";
 import missions from "../assets/missions.png";
+import logoutIcon from "../assets/logout.png"; // Import the logout icon
 import axios from "axios";
 import { useUser } from "../UserContext.js";
 import pencilIcon from "../assets/pencil.png";
@@ -36,7 +36,7 @@ export default function App({ navigation }) {
   const [intervalId, setIntervalId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [newPetName, setNewPetName] = useState("");
-  const { user } = useUser();
+  const { user, logout } = useUser();
   const API_URL = "http://localhost:3000/pets";
 
   useEffect(() => {
@@ -114,6 +114,10 @@ export default function App({ navigation }) {
     }
   };
 
+  const handleLogoutPress = () => {
+    navigation.navigate("Home");
+  };
+
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -169,6 +173,13 @@ export default function App({ navigation }) {
             }
           />
         </TouchableWithoutFeedback>
+
+        <TouchableOpacity
+          style={styles.logoutButton}
+          onPress={handleLogoutPress}
+        >
+          <Image source={logoutIcon} style={styles.logoutIcon} />
+        </TouchableOpacity>
 
         <View style={styles.topbuttonContainer}>
           <TouchableOpacity
@@ -274,6 +285,18 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     overflow: "hidden",
+  },
+  logoutButton: {
+    position: "absolute",
+    top: 70,
+    right: 20,
+    width: 30,
+    height: 30,
+  },
+  logoutIcon: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "contain",
   },
   bottombutton: {
     marginTop: 20,

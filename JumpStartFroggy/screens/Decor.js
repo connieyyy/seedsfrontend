@@ -58,7 +58,6 @@ export default function Decor({ navigation }) {
           inventoryItem: selectedItem.itemName,
         })
         .then((response) => {
-          console.log("Item used:", response.data);
           const updatedItems = purchasedItems
             .map((item) =>
               item._id === selectedItem._id
