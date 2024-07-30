@@ -36,7 +36,7 @@ export default function App({ navigation }) {
   const [intervalId, setIntervalId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [newPetName, setNewPetName] = useState("");
-  const { user, logout } = useUser();
+  const { user } = useUser();
   const API_URL = "http://localhost:3000/pets";
 
   useEffect(() => {

@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 70,
+    marginBottom: 110,
     width: 280,
     backgroundColor: "#35725D",
     padding: 5,

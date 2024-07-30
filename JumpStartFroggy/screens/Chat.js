@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dimensions,
   ImageBackground,
@@ -11,12 +11,19 @@ import {
   Alert,
 } from "react-native";
 import axios from "axios";
+import { useUser } from "../UserContext.js";
 import background from "../assets/main.png";
-import frogbutton from "../assets/frogbutton.png";
-import decorate from "../assets/decorate.png";
-import food from "../assets/food.png";
+import bowchat from "../assets/accessorysprites/bowfroggy/bowfroggy_chat.gif";
+import partychat from "../assets/accessorysprites/partyfroggy/partyfroggy_chat.gif";
+import tophatchat from "../assets/accessorysprites/tophatfroggy/tophatfroggy_chat.gif";
 
-const frogEatGif = require("../assets/froggy_sprites_anims/froggy_chat.gif");
+const defaultFrogGif = require("../assets/froggy_sprites_anims/froggy_chat.gif");
+
+const accessoryGifs = {
+  Bow: bowchat,
+  "Party Hat": partychat,
+  "Top Hat": tophatchat,
+};
 
 const messages = [
   "Hello! I'm your froggy friend! I can provide some feedback on your diet, suggest some recipes, or offer some nutrition tips.",
@@ -25,7 +32,35 @@ const messages = [
 ];
 
 export default function App({ navigation }) {
+  const { user } = useUser();
   const [messageIndex, setMessageIndex] = useState(0);
+  const [frogGif, setFrogGif] = useState(defaultFrogGif);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/pets/${user.email}/accessory`
+        );
+        const accessory = response.data.accessory;
+        updateFrogGif(accessory);
+      } catch (error) {
+        console.error("Error fetching pet details:", error);
+      }
+    };
+
+    if (user?.email) {
+      fetchUserData();
+    }
+  }, [user?.email]);
+
+  const updateFrogGif = (accessory) => {
+    if (accessory && accessoryGifs[accessory]) {
+      setFrogGif(accessoryGifs[accessory]);
+    } else {
+      setFrogGif(defaultFrogGif);
+    }
+  };
 
   const handleBubbleTap = () => {
     if (messageIndex === 1) return;
@@ -38,7 +73,6 @@ export default function App({ navigation }) {
         const response = await axios.post("http://localhost:3000/chat/ask", {
           prompt: "Give me a nutrition tip.",
         });
-        console.log(`response is ${response}`);
         Alert.alert("Nutrition Tip", response.data.reply);
       } catch (error) {
         console.error("Error fetching nutrition tip:", error);
@@ -56,7 +90,7 @@ export default function App({ navigation }) {
         resizeMode="cover"
       >
         <View style={styles.contentContainer}>
-          <Image source={frogEatGif} style={styles.frogEatImage} />
+          <Image source={frogGif} style={styles.frogEatImage} />
           <TouchableOpacity
             style={styles.speechBubbleContainer}
             onPress={handleBubbleTap}
@@ -147,31 +181,6 @@ const styles = StyleSheet.create({
   optionText: {
     fontSize: 16,
     color: "black",
-  },
-
-  bottomButtonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    width: "100%",
-    alignItems: "center",
-    position: "absolute",
-    bottom: 20,
-    marginBottom: 10,
-  },
-
-  bottombutton: {
-    marginTop: 20,
-    marginBottom: 20,
-    borderRadius: 35,
-    width: 70,
-    height: 70,
-    overflow: "hidden",
-  },
-
-  buttonImage: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "cover",
   },
 
   frogEatImage: {
