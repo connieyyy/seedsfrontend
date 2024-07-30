@@ -19,7 +19,6 @@ import { useUser } from "../UserContext.js";
 
 export default function Decor({ navigation }) {
   const [purchasedItems, setPurchasedItems] = useState([]);
-  const [selectedItem, setSelectedItem] = useState(null);
   const [isEating, setIsEating] = useState(false);
   const { user } = useUser();
   const API_URL = "http://localhost:3000/decor";
@@ -48,40 +47,29 @@ export default function Decor({ navigation }) {
   }, [user]);
 
   const handleItemPress = (item) => {
-    setSelectedItem(item);
-  };
+    axios
+      .post(`${API_URL}/${user.email}`, {
+        inventoryItem: item.itemName,
+      })
+      .then((response) => {
+        const updatedItems = purchasedItems
+          .map((i) => (i._id === item._id ? { ...i, count: i.count - 1 } : i))
+          .filter((i) => i.count > 0);
 
-  const handleActionPress = () => {
-    if (selectedItem) {
-      axios
-        .post(`${API_URL}/${user.email}`, {
-          inventoryItem: selectedItem.itemName,
-        })
-        .then((response) => {
-          const updatedItems = purchasedItems
-            .map((item) =>
-              item._id === selectedItem._id
-                ? { ...item, count: item.count - 1 }
-                : item
-            )
-            .filter((item) => item.count > 0);
-
-          setPurchasedItems(updatedItems);
-          setSelectedItem(null);
-          setIsEating(true);
-          setTimeout(() => setIsEating(false), 2000);
-        })
-        .catch((error) => {
-          if (error.response && error.response.data.error === "Pet is full") {
-            Alert.alert(
-              "Cannot feed the pet",
-              "Your pet is full and cannot eat more."
-            );
-          } else {
-            console.error("Error using item:", error);
-          }
-        });
-    }
+        setPurchasedItems(updatedItems);
+        setIsEating(true);
+        setTimeout(() => setIsEating(false), 2000);
+      })
+      .catch((error) => {
+        if (error.response && error.response.data.error === "Pet is full") {
+          Alert.alert(
+            "Cannot feed the pet",
+            "Your pet is full and cannot eat more."
+          );
+        } else {
+          console.error("Error using item:", error);
+        }
+      });
   };
 
   return (
@@ -93,7 +81,7 @@ export default function Decor({ navigation }) {
       >
         <Text style={styles.titletext}>Inventory</Text>
         <Text style={styles.subtitletext}>
-          Select item and press button to feed pet.
+          Select item to feed or equip accessories.
         </Text>
         <View style={styles.cupboard}>
           {purchasedItems.map((item) => (
@@ -117,16 +105,6 @@ export default function Decor({ navigation }) {
           source={isEating ? eatingfrog : basefrog}
           resizeMode="contain"
         />
-        {selectedItem && (
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={handleActionPress}
-          >
-            <Text style={styles.actionButtonText}>
-              {selectedItem.itemType === "food" ? "Feed" : "Equip"}
-            </Text>
-          </TouchableOpacity>
-        )}
         <TouchableOpacity
           style={styles.bottombutton}
           onPress={() => navigation.navigate("Store")}
@@ -164,8 +142,8 @@ const styles = StyleSheet.create({
   },
   subtitletext: {
     color: "white",
-    fontSize: 20,
-    padding: 10,
+    fontSize: 18,
+    padding: 15,
   },
   buttonImage: {
     width: "100%",
@@ -177,9 +155,10 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 150,
+    marginBottom: 70,
+    width: 280,
     backgroundColor: "#35725D",
-    padding: 10,
+    padding: 5,
     borderRadius: 10,
   },
   itemContainer: {
@@ -202,20 +181,6 @@ const styles = StyleSheet.create({
     padding: 2,
     fontSize: 20,
     fontWeight: "bold",
-  },
-  actionButton: {
-    marginTop: 30,
-    alignSelf: "center",
-    backgroundColor: "#35725D",
-    paddingRight: 30,
-    paddingLeft: 30,
-    paddingTop: 10,
-    paddingBottom: 10,
-    borderRadius: 10,
-  },
-  actionButtonText: {
-    color: "white",
-    fontSize: 24,
   },
   bottombutton: {
     marginTop: 30,
