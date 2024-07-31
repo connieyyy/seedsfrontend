@@ -99,16 +99,14 @@ export default function Decor({ navigation, route }) {
       })
       .then((response) => {
         if (isFood) {
-          // Handle food item removal
           const updatedItems = purchasedItems
             .map((i) => (i._id === item._id ? { ...i, count: i.count - 1 } : i))
-            .filter((i) => i.count > 0); // Remove item if count is 0 or less
+            .filter((i) => i.count > 0);
 
           setPurchasedItems(updatedItems);
           setIsEating(true);
           setTimeout(() => setIsEating(false), 3000);
         } else {
-          // Handle accessory change
           setAccessory(item.itemName);
           route.params.setFrog(accessoryGifs[item.itemName]);
         }
