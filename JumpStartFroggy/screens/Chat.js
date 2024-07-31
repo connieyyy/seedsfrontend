@@ -9,6 +9,7 @@ import {
   Image,
   Text,
   Alert,
+  ScrollView,
 } from "react-native";
 import axios from "axios";
 import { useUser } from "../UserContext.js";
@@ -35,6 +36,7 @@ export default function App({ navigation }) {
   const { user } = useUser();
   const [messageIndex, setMessageIndex] = useState(0);
   const [frogGif, setFrogGif] = useState(defaultFrogGif);
+  const [recipe, setRecipe] = useState(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -68,18 +70,50 @@ export default function App({ navigation }) {
   };
 
   const handleOptionSelect = async (option) => {
-    if (option === "Tips") {
+    if (option === "Feedback") {
       try {
-        const response = await axios.post("http://localhost:3000/chat/ask", {
+        const response = await axios.post("http://localhost:3000/chat/askg", {
           prompt: "Give me a nutrition tip.",
         });
-        Alert.alert("Nutrition Tip", response.data.reply);
+        messages[2] = response.data.reply;
       } catch (error) {
         console.error("Error fetching nutrition tip:", error);
         Alert.alert("Error", "Could not fetch nutrition tip.");
       }
+    } else if (option === "Recipes") {
+      const fetchedRecipe = await fetchRecipe();
+      if (fetchedRecipe) {
+        setRecipe(fetchedRecipe);
+      }
     }
     setMessageIndex((prevIndex) => (prevIndex + 1) % messages.length);
+  };
+
+  const fetchRecipe = async () => {
+    try {
+      const response = await axios.get("http://localhost:3000/chat");
+      const { title, instructions, readyInMinutes, image } = response.data;
+      return { title, instructions, readyInMinutes, image };
+    } catch (error) {
+      console.error("Error fetching recipe:", error);
+      Alert.alert("Error", "Could not fetch recipe.");
+      return null;
+    }
+  };
+
+  const formatInstructions = (instructions) => {
+    if (!instructions) return "";
+    return instructions
+      .split(". ")
+      .map((instruction, index) => {
+        return `${index + 1}. ${instruction.trim()}.`;
+      })
+      .join("\n");
+  };
+
+  const handleExitRecipe = () => {
+    setRecipe(null);
+    setMessageIndex(0);
   };
 
   return (
@@ -90,7 +124,7 @@ export default function App({ navigation }) {
         resizeMode="cover"
       >
         <View style={styles.contentContainer}>
-          <Image source={frogGif} style={styles.frogEatImage} />
+          {!recipe && <Image source={frogGif} style={styles.frogEatImage} />}
           <TouchableOpacity
             style={styles.speechBubbleContainer}
             onPress={handleBubbleTap}
@@ -100,7 +134,7 @@ export default function App({ navigation }) {
               {messages[messageIndex]}
             </Text>
           </TouchableOpacity>
-          {messageIndex === 1 && (
+          {messageIndex === 1 && !recipe && (
             <View style={styles.optionsContainer}>
               <TouchableOpacity
                 style={styles.optionButton}
@@ -119,6 +153,27 @@ export default function App({ navigation }) {
                 onPress={() => handleOptionSelect("Tips")}
               >
                 <Text style={styles.optionText}>Tips</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          {recipe && (
+            <View style={styles.recipeContainer}>
+              <Text style={styles.recipeTitle}>{recipe.title}</Text>
+              <Image
+                source={{ uri: recipe.image }}
+                style={styles.recipeImage}
+              />
+              <Text style={styles.recipeReadyIn}>
+                Ready in: {recipe.readyInMinutes} minutes
+              </Text>
+              <ScrollView style={styles.recipeInstructions}>
+                <Text>{formatInstructions(recipe.instructions)}</Text>
+              </ScrollView>
+              <TouchableOpacity
+                style={styles.exitButton}
+                onPress={handleExitRecipe}
+              >
+                <Text style={styles.exitButtonText}>Exit</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -151,13 +206,16 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 500,
     maxWidth: 340,
+    maxHeight: 255,
     alignItems: "center",
+    overflowY: "scroll",
     paddingHorizontal: 15,
   },
 
   speechBubbleText: {
     fontSize: 16,
     color: "black",
+    whiteSpace: "pre-line",
   },
 
   optionsContainer: {
@@ -192,5 +250,52 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
+  },
+
+  recipeContainer: {
+    backgroundColor: "#FFF1DC",
+    borderRadius: 10,
+    padding: 20,
+    marginTop: 150,
+    alignItems: "center",
+  },
+
+  recipeTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+
+  recipeImage: {
+    width: 200,
+    height: 200,
+    resizeMode: "cover",
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+
+  recipeReadyIn: {
+    fontSize: 16,
+    color: "gray",
+    marginBottom: 10,
+  },
+
+  recipeInstructions: {
+    fontSize: 16,
+    color: "black",
+    whiteSpace: "pre-line",
+  },
+
+  exitButton: {
+    marginTop: 20,
+    backgroundColor: "#ff6347",
+    borderRadius: 10,
+    padding: 10,
+    alignItems: "center",
+  },
+
+  exitButtonText: {
+    fontSize: 16,
+    color: "white",
   },
 });
