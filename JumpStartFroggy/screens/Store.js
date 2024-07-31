@@ -17,7 +17,7 @@ import food from "../assets/food.png";
 
 const API_URL = "http://localhost:3000/store";
 
-export default function Store({ navigation }) {
+export default function Store({ navigation, route }) {
   const [storeItems, setStoreItems] = useState([]);
   const [coinValue, setCoinValue] = useState(0);
   const [purchasedItems, setPurchasedItems] = useState([]);
@@ -120,7 +120,11 @@ export default function Store({ navigation }) {
 
         <TouchableOpacity
           style={styles.bottombutton}
-          onPress={() => navigation.navigate("Decor")}
+          onPress={() =>
+            navigation.navigate("Decor", {
+              setFrog: (image) => route.params.setFrog(image),
+            })
+          }
         >
           <Image source={food} style={styles.buttonImage} />
         </TouchableOpacity>

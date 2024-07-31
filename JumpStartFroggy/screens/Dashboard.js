@@ -226,14 +226,12 @@ export default function App({ navigation }) {
             }
           />
         </TouchableWithoutFeedback>
-
         <TouchableOpacity
           style={styles.logoutButton}
           onPress={handleLogoutPress}
         >
           <Image source={logoutIcon} style={styles.logoutIcon} />
         </TouchableOpacity>
-
         <View style={styles.topbuttonContainer}>
           <TouchableOpacity
             style={styles.topbutton}
@@ -248,7 +246,6 @@ export default function App({ navigation }) {
             <Image source={log} style={styles.buttonImage} />
           </TouchableOpacity>
         </View>
-
         <View style={styles.bottomButtonContainer}>
           <TouchableOpacity
             style={styles.bottombutton}
@@ -264,7 +261,11 @@ export default function App({ navigation }) {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.bottombutton}
-            onPress={() => navigation.navigate("Store")}
+            onPress={() =>
+              navigation.navigate("Store", {
+                setFrog: (image) => setFrogImage(image),
+              })
+            }
           >
             <Image source={decor} style={styles.buttonImage} />
           </TouchableOpacity>

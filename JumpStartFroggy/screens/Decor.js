@@ -37,7 +37,7 @@ const eatingGifs = {
   "Top Hat": topeating,
 };
 
-export default function Decor({ navigation }) {
+export default function Decor({ navigation, route }) {
   const [purchasedItems, setPurchasedItems] = useState([]);
   const [isEating, setIsEating] = useState(false);
   const [accessory, setAccessory] = useState(null);
@@ -103,6 +103,7 @@ export default function Decor({ navigation }) {
           setTimeout(() => setIsEating(false), 3000);
         } else {
           setAccessory(item.itemName);
+          route.params.setFrog(accessoryGifs[item.itemName]);
         }
       })
       .catch((error) => {
