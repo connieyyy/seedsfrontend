@@ -20,6 +20,7 @@ const API_URL = "http://localhost:3000/store";
 export default function Store({ navigation }) {
   const [storeItems, setStoreItems] = useState([]);
   const [coinValue, setCoinValue] = useState(0);
+  const [purchasedItems, setPurchasedItems] = useState([]);
   const { user } = useUser();
 
   useEffect(() => {
@@ -32,17 +33,18 @@ export default function Store({ navigation }) {
       }
     };
 
-    const fetchCoinValue = async () => {
+    const fetchUserData = async () => {
       try {
         const response = await axios.get(`${API_URL}/${user.email}`);
         setCoinValue(response.data.frogCoins);
+        setPurchasedItems(response.data.purchasedItems || []);
       } catch (error) {
-        console.error("Error fetching coin value");
+        console.error("Error fetching user data");
       }
     };
 
     fetchStoreItems();
-    fetchCoinValue();
+    fetchUserData();
   }, [user]);
 
   const handlePurchase = async (itemId) => {
@@ -52,6 +54,7 @@ export default function Store({ navigation }) {
         itemId,
       });
       setCoinValue(response.data.frogCoins);
+      setPurchasedItems(response.data.purchasedItems);
     } catch (error) {
       Alert.alert(
         "Purchase Failed",
@@ -60,29 +63,35 @@ export default function Store({ navigation }) {
     }
   };
 
-  const renderItem = ({ item }) => (
-    <View style={styles.itemContainer}>
-      <Image source={{ uri: item.itemImage }} style={styles.itemImage} />
-      <Text style={styles.itemName}>{item.itemName}</Text>
-      <Text style={styles.itemDescription}>{item.itemDescription}</Text>
-      <TouchableOpacity
-        style={styles.buyButton}
-        onPress={() => handlePurchase(item._id)}
-        disabled={
-          item.isOneTimePurchase && user.purchasedItems.includes(item._id)
-        }
-      >
-        <Text style={styles.buyButtonText}>
-          {" "}
-          Buy {item.itemPrice}{" "}
-          <Image source={frogcoin} style={styles.coincost} />
-        </Text>
-      </TouchableOpacity>
-      {item.isOneTimePurchase && user.purchasedItems.includes(item._id) && (
-        <Text style={styles.purchasedText}>Item already purchased</Text>
-      )}
-    </View>
-  );
+  const renderItem = ({ item }) => {
+    const isPurchased =
+      item.isOneTimePurchase && purchasedItems.includes(item._id);
+
+    return (
+      <View style={styles.itemContainer}>
+        <Image
+          source={{ uri: item.itemImage }}
+          style={styles.itemImage}
+          resizeMethod="contain"
+        />
+        <Text style={styles.itemName}>{item.itemName}</Text>
+        <Text style={styles.itemDescription}>{item.itemDescription}</Text>
+        <TouchableOpacity
+          style={[styles.buyButton, isPurchased && styles.disabledButton]}
+          onPress={() => handlePurchase(item._id)}
+          disabled={isPurchased}
+        >
+          <Text style={styles.buyButtonText}>
+            Buy {item.itemPrice}
+            <Image source={frogcoin} style={styles.coincost} />
+          </Text>
+        </TouchableOpacity>
+        {isPurchased && (
+          <Text style={styles.purchasedText}>Item already purchased</Text>
+        )}
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -147,13 +156,13 @@ const styles = StyleSheet.create({
   },
   buyButton: {
     backgroundColor: "#4ba17e",
-    borderRadius: 10,
-    padding: 5,
+    borderRadius: 5,
+    padding: 3,
     margin: 5,
   },
   buyButtonText: {
     color: "white",
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "500",
   },
   coinBar: {
@@ -190,8 +199,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "white",
     fontWeight: "500",
-    marginTop: 20,
-    marginBottom: 30,
+    marginTop: 10,
+    marginBottom: 10,
   },
   shopcontainer: {
     backgroundColor: "#35725D",
@@ -207,7 +216,7 @@ const styles = StyleSheet.create({
   itemContainer: {
     backgroundColor: "#22493F",
     padding: 10,
-    margin: 10,
+    margin: 5,
     borderRadius: 10,
     alignItems: "center",
     borderRadius: 10,
@@ -220,7 +229,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   itemName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
     marginTop: 10,
     textAlign: "center",
@@ -238,7 +247,7 @@ const styles = StyleSheet.create({
     height: 40,
   },
   itemDescription: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "600",
     color: "white",
     marginTop: 5,
