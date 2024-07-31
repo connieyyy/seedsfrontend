@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { LogBox } from "react-native";
 import {
   StyleSheet,
   View,
@@ -36,6 +37,10 @@ const eatingGifs = {
   "Party Hat": partyeating,
   "Top Hat": topeating,
 };
+
+LogBox.ignoreLogs([
+  "Non-serializable values were found in the navigation state",
+]);
 
 export default function Decor({ navigation, route }) {
   const [purchasedItems, setPurchasedItems] = useState([]);
@@ -93,15 +98,17 @@ export default function Decor({ navigation, route }) {
         inventoryItem: item.itemName,
       })
       .then((response) => {
-        const updatedItems = purchasedItems
-          .map((i) => (i._id === item._id ? { ...i, count: i.count - 1 } : i))
-          .filter((i) => i.count > 0);
-
-        setPurchasedItems(updatedItems);
         if (isFood) {
+          // Handle food item removal
+          const updatedItems = purchasedItems
+            .map((i) => (i._id === item._id ? { ...i, count: i.count - 1 } : i))
+            .filter((i) => i.count > 0); // Remove item if count is 0 or less
+
+          setPurchasedItems(updatedItems);
           setIsEating(true);
           setTimeout(() => setIsEating(false), 3000);
         } else {
+          // Handle accessory change
           setAccessory(item.itemName);
           route.params.setFrog(accessoryGifs[item.itemName]);
         }
