@@ -167,8 +167,6 @@ export default function App({ navigation }) {
 
       setPetInfo(updatedResponse.data);
       setIsEditing(false);
-
-      console.log("Pet name updated and fetched successfully!");
     } catch (err) {
       console.error(
         "Error updating pet name:",
@@ -289,6 +287,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 70,
     left: 30,
+    paddingHorizontal: 10,
   },
   petInfoRow: {
     flexDirection: "row",

@@ -16,6 +16,7 @@ const API_URL = "http://localhost:3000/feed";
 
 export default function Feed() {
   const [friends, setFriends] = useState([]);
+  const [error, setError] = useState(null);
   const { user } = useUser();
   const navigation = useNavigation();
 
