@@ -15,6 +15,7 @@ import background from "../assets/main.png";
 import frogbutton from "../assets/frogbutton.png";
 import decorate from "../assets/decorate.png";
 import food from "../assets/food.png";
+require("dotenv").config();
 
 const frogEatGif = require("../assets/froggy_sprites_anims/froggy_chat.gif");
 
@@ -23,6 +24,11 @@ const messages = [
   "How may I help you?",
   "Keep up the good work!",
 ];
+
+const FIND_RECIPE_API_URL =
+  "https://api.spoonacular.com/recipes/complexSearch?sort=random&veryHealthy=true&number=1&apiKey=";
+const GET_RECIPE_API_URL = "https://api.spoonacular.com/recipes/";
+const RECIPE_API_KEY = "INSERT API KEY HERE";
 
 export default function App({ navigation }) {
   const [messageIndex, setMessageIndex] = useState(0);
@@ -35,14 +41,45 @@ export default function App({ navigation }) {
   const handleOptionSelect = async (option) => {
     if (option === "Tips") {
       try {
-        const response = await axios.post("http://localhost:3000/chat/ask", {
+        const response = await axios.post("http://localhost:3000/chat/askg", {
           prompt: "Give me a nutrition tip.",
         });
         console.log(`response is ${response}`);
-        Alert.alert("Nutrition Tip", response.data.reply);
+        //Alert.alert("Nutrition Tip", response.data.reply);
+        messages[2] = response.data.reply;
       } catch (error) {
         console.error("Error fetching nutrition tip:", error);
         Alert.alert("Error", "Could not fetch nutrition tip.");
+      }
+    }
+
+    if (option === "Recipes") {
+      try {
+        const found_recipe = await axios.get(
+          `${FIND_RECIPE_API_URL}${RECIPE_API_KEY}`
+        );
+        const id = found_recipe.data["results"][0]["id"];
+        console.log(`found recipe is ${found_recipe.data}`);
+
+        const recipe = await axios.get(
+          `${GET_RECIPE_API_URL}${id}/information?apiKey=${RECIPE_API_KEY}`
+        );
+        // Getting rid of HTML tags.
+        const regex = /(<([^>]+)>)/gi;
+        let instructions = recipe.data["instructions"];
+        if (instructions !== null) {
+          instructions = instructions.replace(regex, " ");
+        }
+        let title = recipe.data["title"];
+        messages[2] = title + ":" + instructions;
+
+        // How to fetch other information:
+        // recipe.data["readyInMinutes"] => Amount of time the recipe takes to make
+        // recipe.data["image"] => Image URL
+        // recipe.data["extendedIngredients"][0]["name"] => fetching name of first ingredient in the list
+      } catch (error) {
+        console.error("Error fetching recipe:", error);
+        Alert.alert("Error", "Could not fetch recipe.");
       }
     }
     setMessageIndex((prevIndex) => (prevIndex + 1) % messages.length);
@@ -117,13 +154,16 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 500,
     maxWidth: 340,
+    maxHeight: 255,
     alignItems: "center",
+    overflowY: "scroll",
     paddingHorizontal: 15,
   },
 
   speechBubbleText: {
     fontSize: 16,
     color: "black",
+    whiteSpace: "pre-line",
   },
 
   optionsContainer: {
