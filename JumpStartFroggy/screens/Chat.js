@@ -27,7 +27,7 @@ const accessoryGifs = {
 };
 
 const messages = [
-  "Hello! I'm your froggy friend! I can provide some feedback on your diet, suggest some recipes, or offer some nutrition tips.",
+  "Hello! I'm your froggy friend! I can suggest some recipes or offer some nutrition tips.",
   "How may I help you?",
   "Keep up the good work!",
 ];
@@ -70,7 +70,7 @@ export default function App({ navigation }) {
   };
 
   const handleOptionSelect = async (option) => {
-    if (option === "Feedback") {
+    if (option === "Tips") {
       try {
         const response = await axios.post("http://localhost:3000/chat/askg", {
           prompt: "Give me a nutrition tip.",
@@ -128,7 +128,7 @@ export default function App({ navigation }) {
           <TouchableOpacity
             style={styles.speechBubbleContainer}
             onPress={handleBubbleTap}
-            disabled={messageIndex === 1} // Disable tap when options are shown
+            disabled={messageIndex === 1}
           >
             <Text style={styles.speechBubbleText}>
               {messages[messageIndex]}
@@ -138,21 +138,15 @@ export default function App({ navigation }) {
             <View style={styles.optionsContainer}>
               <TouchableOpacity
                 style={styles.optionButton}
-                onPress={() => handleOptionSelect("Feedback")}
+                onPress={() => handleOptionSelect("Tips")}
               >
-                <Text style={styles.optionText}>Feedback</Text>
+                <Text style={styles.optionText}>Tips</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.optionButton}
                 onPress={() => handleOptionSelect("Recipes")}
               >
                 <Text style={styles.optionText}>Recipes</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.optionButton}
-                onPress={() => handleOptionSelect("Tips")}
-              >
-                <Text style={styles.optionText}>Tips</Text>
               </TouchableOpacity>
             </View>
           )}
