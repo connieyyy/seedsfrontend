@@ -80,7 +80,9 @@ export default function App({ navigation }) {
           const response = await axios.get(`${API_URL}/${user.email}`);
           setPetInfo(response.data);
           setNewPetName(
-            response.data.pet && response.data.pet ? response.data.petName : ""
+            response.data.pet && response.data.pet
+              ? response.data.petName
+              : "Froggy"
           );
         } catch (err) {
           console.error("Error fetching pet information:", err.message);
@@ -96,7 +98,10 @@ export default function App({ navigation }) {
           const updatedResponse = await axios.get(
             `${API_URL}/${user.email}/getHealth`
           );
-          setPetInfo(updatedResponse.data);
+          setPetInfo((prevState) => ({
+            ...prevState,
+            petHealthLevel: updatedResponse.petHealthLevel,
+          }));
         } catch (err) {
           console.error("Error updating pet health:", err.message);
         }
@@ -108,11 +113,32 @@ export default function App({ navigation }) {
   }, [user]);
 
   useEffect(() => {
+    const id = setInterval(async () => {
+      if (user && user.email) {
+        try {
+          const updatedResponse = await axios.get(
+            `${API_URL}/${user.email}/getHealth`
+          );
+          setPetInfo((prevState) => ({
+            ...prevState,
+            petHealthLevel: updatedResponse.petHealthLevel,
+          }));
+        } catch (err) {
+          console.error("Error fetching pet health:", err.message);
+        }
+      }
+    }, 10 * 1000);
+
+    return () => clearInterval(id);
+  }, [user]);
+
+  useEffect(() => {
     const fetchImage = async () => {
       const image = await getFrogImage();
       setFrogImage(image);
     };
     fetchImage();
+    const id = setInterval(fetchImage, 30 * 1000);
   }, [petInfo.petHealthLevel, isJumping]);
 
   const getFrogImage = async () => {
