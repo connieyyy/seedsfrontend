@@ -13,7 +13,7 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
-import { launchImageLibrary } from "react-native-image-picker";
+import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import swamp from "../assets/swamp.jpg";
@@ -35,14 +35,23 @@ export default function FoodLog() {
 
   useEffect(() => {
     const fetchFoodLogs = async () => {
+      if (user) {
+        //console.log("User exists:", user);
+      } else {
+        //console.log("User is missing");
+      }
       if (user && user.email) {
         const today = new Date().toISOString().split("T")[0];
         try {
           const response = await axios.get(`${API_URL}/${user.email}/${today}`);
-          const flattenedData = Array.isArray(response.data)
-            ? response.data.flat()
-            : [];
-          setFoodLogs(flattenedData);
+          // const flattenedData = Array.isArray(response.data)
+          //? response.data.flat()
+          // : [];
+          // setFoodLogs(flattenedData);
+          const foodLog = Array.isArray(response.data)
+            ? response.data
+            : [response.data];
+          setFoodLogs(foodLog);
         } catch (err) {
           console.error("Error fetching food logs:", err.message);
         }
@@ -51,61 +60,79 @@ export default function FoodLog() {
     fetchFoodLogs();
   }, [user]);
 
-  const handleImagePick = () => {
-    if (!launchImageLibrary) {
-      console.error("ImagePicker is not available.");
+  const requestPermission = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    return status === "granted";
+  };
+
+  const handleImagePick = async () => {
+    const hasPermission = await requestPermission();
+    if (!hasPermission) {
+      console.error("Permission to access media library was denied.");
       return;
     }
 
-    const options = {
-      mediaType: "photo",
-    };
-    launchImageLibrary(options, (response) => {
-      if (response.didCancel) {
-        console.log("User cancelled image picker");
-      } else if (response.error) {
-        console.log("ImagePicker Error: ", response.error);
-      } else if (response.assets && response.assets.length > 0) {
-        const selectedImage = response.assets[0];
-        setFoodItem({
-          ...foodItem,
-          image: selectedImage,
-        });
-      }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
     });
+
+    if (!result.canceled) {
+      setFoodItem({
+        ...foodItem,
+        image: result.assets[0],
+      });
+    }
   };
 
   const handleAddFoodItem = async () => {
+    if (user) {
+    } else {
+      console.log("User is missing");
+    }
+
     if (user && user.email) {
-      const today = new Date().toISOString().split("T")[0];
-
-      const formData = new FormData();
-      formData.append("email", user.email);
-      formData.append("foodName", foodItem.name);
-      formData.append("date", today);
-      formData.append("foodDescription", foodItem.description);
-
-      if (foodItem.image) {
-        formData.append("image", {
-          uri: foodItem.image.uri,
-          type: foodItem.image.type,
-          name: foodItem.image.fileName || "food_image.jpg",
-        });
-      }
-
       try {
-        await axios.post(API_URL, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-        const response = await axios.get(`${API_URL}/${user.email}/${today}`);
-        setFoodLogs(response.data ? response.data : []);
-        setFoodItem({ name: "", description: "", image: null });
-        setModalVisible(false);
+        const today = new Date().toISOString().split("T")[0];
+
+        const formData = new FormData();
+        formData.append("foodName", foodItem.name);
+        formData.append("date", today);
+        formData.append("foodDescription", foodItem.description);
+
+        if (foodItem.image) {
+          formData.append("image", {
+            uri: foodItem.image.uri,
+            type: foodItem.image.type,
+            name: foodItem.image.fileName || "food_image.jpg",
+          });
+        }
+
+        await axios.post(
+          `http://localhost:3000/foodlogs/${user.email}`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        try {
+          const response = await axios.get(
+            `http://localhost:3000/foodlogs/${user.email}/${today}`
+          );
+          setFoodLogs(response.data ? response.data : []);
+          setFoodItem({ name: "", description: "", image: null });
+          setModalVisible(false);
+        } catch (err) {
+          console.error("Error fetching food logs:", err.message);
+        }
       } catch (err) {
-        console.error("Error adding food item:", err.message);
+        console.error("Error posting food item:", err.message);
       }
+    } else {
+      console.log("User or email is missing");
     }
   };
 
@@ -118,34 +145,36 @@ export default function FoodLog() {
     }
   };
 
-  const renderFoodLogItem = ({ item }) => (
-    <Swipeable
-      renderRightActions={() => (
-        <TouchableOpacity
-          style={styles.deleteSwipeButton}
-          onPress={() => confirmDelete(item._id)}
-        >
-          <Icon name="delete" size={24} color="white" />
-        </TouchableOpacity>
-      )}
-    >
-      <View style={styles.missionBlock}>
-        <View style={styles.foodLogContent}>
-          {item.foodPhotoLink && item.foodPhotoLink.trim() !== "" ? (
-            <Image
-              source={{ uri: item.foodPhotoLink }}
-              style={styles.foodImage}
-              onError={() => {
-                console.log("Image failed to load");
-              }}
-            />
-          ) : null}
-          <Text style={styles.missionTitle}>{item.foodName}</Text>
-          <Text style={styles.missionsubtitle}>{item.foodDescription}</Text>
+  const renderFoodLogItem = ({ item }) => {
+    return (
+      <Swipeable
+        renderRightActions={() => (
+          <TouchableOpacity
+            style={styles.deleteSwipeButton}
+            onPress={() => confirmDelete(item._id)}
+          >
+            <Icon name="delete" size={24} color="white" />
+          </TouchableOpacity>
+        )}
+      >
+        <View style={styles.missionBlock}>
+          <View style={styles.foodLogContent}>
+            {item.foodPhotoLink && item.foodPhotoLink.trim() !== "" ? (
+              <Image
+                source={{ uri: item.foodPhotoLink }}
+                style={styles.foodImage}
+                onError={() => {
+                  console.log("Image failed to load");
+                }}
+              />
+            ) : null}
+            <Text style={styles.missionTitle}>{item.foodName}</Text>
+            <Text style={styles.missionsubtitle}>{item.foodDescription}</Text>
+          </View>
         </View>
-      </View>
-    </Swipeable>
-  );
+      </Swipeable>
+    );
+  };
 
   const confirmDelete = (foodId) => {
     Alert.alert(
