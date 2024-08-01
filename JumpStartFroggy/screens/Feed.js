@@ -47,6 +47,7 @@ export default function Feed() {
           </View>
         </TouchableOpacity>
       </View>
+      <Text style={styles.friendtitle}>Friends' Food Logs</Text>
       <FlatList
         data={friends}
         keyExtractor={(item) => item.username}
@@ -105,6 +106,13 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 8,
     elevation: 2,
+  },
+  friendtitle: {
+    fontSize: 18,
+    color: "white",
+    textAlign: "center",
+    fontWeight: "bold",
+    marginRight: 50,
   },
   rowContainer: {
     flexDirection: "row",
