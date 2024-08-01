@@ -64,11 +64,10 @@ export default function Store({ navigation, route }) {
   };
 
   const renderItem = ({ item }) => {
-    const isPurchased =
-      item.isOneTimePurchase && purchasedItems.includes(item._id);
+    const isPurchased = item.oneTime && purchasedItems?.includes(item._id);
 
     return (
-      <View style={styles.itemContainer}>
+      <View style={[styles.itemContainer, isPurchased && styles.disabledItem]}>
         <Image
           source={{ uri: item.itemImage }}
           style={styles.itemImage}
@@ -86,9 +85,6 @@ export default function Store({ navigation, route }) {
             <Image source={frogcoin} style={styles.coincost} />
           </Text>
         </TouchableOpacity>
-        {isPurchased && (
-          <Text style={styles.purchasedText}>Item already purchased</Text>
-        )}
       </View>
     );
   };
@@ -275,5 +271,16 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     resizeMode: "cover",
+  },
+  disabledItem: {
+    opacity: 0.5,
+  },
+  disabledButton: {
+    backgroundColor: "#A9A9A9",
+  },
+  purchasedText: {
+    color: "#D3D3D3",
+    fontSize: 12,
+    marginTop: 5,
   },
 });
