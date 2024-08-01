@@ -77,7 +77,7 @@ export default function Store({ navigation, route }) {
         <Text style={styles.itemDescription}>{item.itemDescription}</Text>
         <TouchableOpacity
           style={[styles.buyButton, isPurchased && styles.disabledButton]}
-          onPress={() => handlePurchase(item._id)}
+          onPress={() => !isPurchased && handlePurchase(item._id)}
           disabled={isPurchased}
         >
           <Text style={styles.buyButtonText}>
